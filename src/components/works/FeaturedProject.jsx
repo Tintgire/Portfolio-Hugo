@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 
-export default function FeaturedProject({ project }) {
+export default function FeaturedProject({ project, onOpen }) {
   const { name, description, tech, images, links, year } = project
 
   return (
@@ -45,6 +45,13 @@ export default function FeaturedProject({ project }) {
                 Voir sur l'{links.live.label} ↗
               </a>
             )}
+            <button
+              type="button"
+              onClick={() => onOpen?.(project.id)}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-purple-300/40 bg-white/5 text-purple-100 text-xs font-bold tracking-wider hover:bg-white/10 transition-colors"
+            >
+              Détails du projet
+            </button>
           </div>
           {links?.github?.private && (
             <p className="text-[10px] opacity-55 italic mt-3">

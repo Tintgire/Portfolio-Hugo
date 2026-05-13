@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useCallback } from 'react'
 import { Tilt } from 'react-tilt'
 import { motion } from 'framer-motion'
 
@@ -9,45 +9,59 @@ import { SectionWrapper } from '../hoc'
 import { projects } from '../constans'
 import { fadeIn, textVariant } from '../utils/motion'
 import FeaturedProject from './works/FeaturedProject'
+import ProjectDrawer from './works/ProjectDrawer'
 
 const ProjectCard = ({
   index,
-  name,
-  description,
-  tags,
-  image,
-  source_code_link,
-  site,
+  project,
+  onOpen,
 }) => {
+  const { id, name, description, tags, image, source_code_link } = project
+
   return (
     <motion.div variants={fadeIn('up', 'spring', index * 0.5, 0.75)}>
-      <a href={site}>
-        <Tilt
-          options={{
-            max: 45,
-            scale: 1,
-            speed: 450,
+      <Tilt
+        options={{
+          max: 45,
+          scale: 1,
+          speed: 450,
+        }}
+        className="bg-tertiary p-5 rounded-2xl sm:w-[360px] w-full cursor-pointer"
+      >
+        <div
+          role="button"
+          tabIndex={0}
+          onClick={() => onOpen?.(id)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault()
+              onOpen?.(id)
+            }
           }}
-          className="bg-tertiary p-5 rounded-2xl sm:w-[360px] w-full"
         >
           <div className="relative w-full h-[230px]">
             <img
               src={image}
-              alt="project"
+              alt={name}
               className="w-full h-full object-cover rounded-2xl"
             />
 
-            <div className="absolute inset-0 flex justify-end m-3 card-img_hover">
-              <div
-                onClick={() => window.open(source_code_link, '_blank')}
+            <div className="absolute inset-0 flex justify-end m-3">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  window.open(source_code_link, '_blank')
+                }}
+                aria-label={`Ouvrir le code source de ${name}`}
                 className="black-gradient w-10 h-10 rounded-full flex justify-center items-center cursor-pointer"
               >
                 <img
                   src={github}
-                  alt="github"
+                  alt=""
                   className="w-1/2 h-1/2 object-contain"
                 />
-              </div>
+              </button>
             </div>
           </div>
 
@@ -63,8 +77,8 @@ const ProjectCard = ({
               </p>
             ))}
           </div>
-        </Tilt>
-      </a>
+        </div>
+      </Tilt>
     </motion.div>
   )
 }
@@ -72,6 +86,12 @@ const ProjectCard = ({
 const Works = () => {
   const featured = projects.filter((p) => p.featured)
   const others = projects.filter((p) => !p.featured)
+
+  const [openId, setOpenId] = useState(null)
+  const openProject = useCallback((id) => setOpenId(id), [])
+  const closeProject = useCallback(() => setOpenId(null), [])
+
+  const activeProject = openId ? projects.find((p) => p.id === openId) : null
 
   return (
     <>
@@ -102,16 +122,27 @@ const Works = () => {
       {featured.length > 0 && (
         <div className="mt-16">
           {featured.map((project) => (
-            <FeaturedProject key={project.id} project={project} />
+            <FeaturedProject
+              key={project.id}
+              project={project}
+              onOpen={openProject}
+            />
           ))}
         </div>
       )}
 
       <div className="mt-12 flex flex-wrap gap-7">
         {others.map((project, index) => (
-          <ProjectCard key={project.id ?? `project-${index}`} {...project} index={index} />
+          <ProjectCard
+            key={project.id ?? `project-${index}`}
+            project={project}
+            index={index}
+            onOpen={openProject}
+          />
         ))}
       </div>
+
+      <ProjectDrawer project={activeProject} onClose={closeProject} />
     </>
   )
 }

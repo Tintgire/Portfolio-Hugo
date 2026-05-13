@@ -49,7 +49,7 @@ export function useElementScrollProgress(ref) {
       window.removeEventListener('scroll', compute)
       window.removeEventListener('resize', compute)
     }
-  }, [ref])
+  }, [])
 
   return progress
 }

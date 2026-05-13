@@ -68,11 +68,7 @@ const Hero = () => {
   }, [startTypingAnimation])
 
   const { scrollY } = useScroll()
-  const canvasOpacity = useTransform(
-    scrollY,
-    [0, typeof window !== 'undefined' ? window.innerHeight * 0.6 : 600],
-    [1, 0]
-  )
+  const canvasOpacity = useTransform(scrollY, [0, window.innerHeight * 0.6], [1, 0])
 
   return (
     <section className="relative w-80vw h-screen mx-auto overflow-hidden">

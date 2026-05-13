@@ -217,6 +217,11 @@ const projects = [
     featured: true,
     year: '2025',
     description: `Application qui vous paie pour qui vous êtes. Contrôle total de vos données, compensation directe à chaque utilisation, sécurité garantie.`,
+    longDescription: `Rubi inverse l'équation des données personnelles : au lieu que les utilisateurs cèdent gratuitement leurs informations aux plateformes, l'application leur reverse une rémunération directe à chaque utilisation. Au cœur du produit, un système de consentement granulaire — l'utilisateur autorise (ou refuse) l'accès, donnée par donnée — et un wallet intégré qui crédite les gains en temps réel.
+
+Côté technique, le stack est résolument mobile-first : React Native pour l'app iOS/Android avec composants natifs (Java/Kotlin/Objective-C) pour les modules de sécurité, Next.js pour le dashboard web et l'API publique, Supabase + Firebase pour la persistance et l'auth, le tout orchestré via Docker. La sécurité a été pensée dès la conception : chiffrement bout en bout des consentements et audit trail immutable.
+
+Projet d'entreprise — code source privé. Disponible sur l'App Store.`,
     tags: [
       { name: `React Native`, color: `text-cyan-400 text-gradient` },
       { name: `Next.js`, color: `text-white text-gradient` },
@@ -251,6 +256,9 @@ const projects = [
     featured: false,
     year: '2023',
     description: `En utilisant React et Figma, créez une application web de location immobilière en initiant une application avec Create React App, configurant la navigation entre les pages avec React Router, et développant des éléments d'interface de site web grâce à des composants React.`,
+    longDescription: `Kaza est une plateforme de location immobilière saisonnière construite en React. Le projet pédagogique de l'OpenClassrooms parcours Dev Web met l'accent sur la navigation client-side (React Router), la décomposition en composants réutilisables (Cards, Collapsible, Carousel), et l'intégration de données JSON statiques.
+
+J'ai porté une attention particulière au responsive (SCSS modulaire avec breakpoints mobile/tablet/desktop) et aux animations de transition entre pages. Le carrousel de photos est entièrement fait-main, sans bibliothèque externe.`,
     tags: [
       { name: `Html`, color: `text-blue-500 text-gradient` },
       { name: `Css`, color: `text-green-500 text-gradient` },
@@ -276,6 +284,9 @@ const projects = [
     featured: false,
     year: '2023',
     description: `Construisez une API sécurisée pour une application d'avis gastronomiques, implémenter un modèle logique de données conformément à la réglementation, stocker des données de manière sécurisée et garantir la confidentialité des utilisateurs en mettant en place des mesures robustes de protection des données.`,
+    longDescription: `Hot Takes est une API REST sécurisée pour une application d'avis culinaires, construite avec Node.js + Express. Le projet couvre l'authentification JWT, la gestion de l'upload d'images (Multer), la validation côté serveur, et la mise en place de mesures OWASP (rate limiting, headers sécurisés via Helmet, sanitization).
+
+La modélisation de données utilise Mongoose pour structurer les schémas (utilisateurs, sauces, likes/dislikes) avec contraintes et indexes appropriés. Les routes sont versionnées et documentées, conformes à la pédagogie REST.`,
     tags: [
       { name: `TypeScript`, color: `blue-text-gradient` },
       { name: `Javascript`, color: `text-orange-500 text-gradient` },
@@ -301,6 +312,9 @@ const projects = [
     featured: false,
     year: '2022',
     description: `En construisant un site e-commerce en JavaScript, vous serez en mesure de créer un plan de test pour l'application, de valider les données provenant de sources externes, d'interagir avec un web service à l'aide de JavaScript, et de gérer les événements JavaScript.`,
+    longDescription: `Kanap est un site e-commerce de canapés codé en JavaScript vanilla — pas de framework, juste les fondamentaux. Le projet entraîne sur la gestion du DOM, la consommation d'une API REST, la persistance d'un panier en localStorage, et la validation de formulaires côté client avec regex.
+
+Pour le plan de test, j'ai documenté les cas d'usage critiques (ajout au panier, modification de quantité, validation de commande) et identifié les bugs côté API en testant chaque endpoint via Postman. Un exercice solide de fondations avant de monter en abstraction sur les frameworks.`,
     tags: [
       { name: `Html`, color: `text-blue-500 text-gradient` },
       { name: `Css`, color: `text-green-500 text-gradient` },

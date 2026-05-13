@@ -15,7 +15,7 @@ export default function FeaturedProject({ project }) {
         <div className="relative z-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-500/15 border border-pink-500/40 text-pink-300 text-[10px] tracking-[0.2em] uppercase font-bold mb-4">
             <span className="w-1.5 h-1.5 rounded-full bg-pink-400 animate-pulse" />
-            Live on App Store
+            Live on {links?.live?.label ?? 'production'}
             <span className="opacity-60 ml-1">· {year}</span>
           </div>
           <h3 className="text-4xl sm:text-5xl font-black tracking-tight leading-none mb-3 bg-gradient-to-br from-white via-pink-300 to-purple-400 bg-clip-text text-transparent">

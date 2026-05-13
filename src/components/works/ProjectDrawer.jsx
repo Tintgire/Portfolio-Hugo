@@ -1,9 +1,11 @@
 import { useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import DrawerGallery from './DrawerGallery'
+import { useLenis } from '../../lib/LenisProvider'
 
 export default function ProjectDrawer({ project, onClose }) {
   const closeBtnRef = useRef(null)
+  const lenis = useLenis()
 
   useEffect(() => {
     if (!project) return
@@ -18,15 +20,17 @@ export default function ProjectDrawer({ project, onClose }) {
 
     const prevOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
+    lenis?.stop()
 
     return () => {
       document.removeEventListener('keydown', onKey)
       document.body.style.overflow = prevOverflow
+      lenis?.start()
       if (previouslyFocused instanceof HTMLElement) {
         previouslyFocused.focus()
       }
     }
-  }, [project, onClose])
+  }, [project, onClose, lenis])
 
   return (
     <AnimatePresence>

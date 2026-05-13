@@ -76,8 +76,8 @@ const Hero = () => {
           <div className="w-5 h-5 rounded-full bg-[#915EFF]" />
           <div className="w-1 sm:h-80 h-40 violet-gradient" />
         </div>
-        <div>
-          <h1 className={`${styles.heroHeadText} container text-white`}>
+        <div className="flex-1 min-w-0">
+          <h1 className={`${styles.heroHeadText} text-white break-words`}>
             Hi, I'm{' '}
             <span className="text-[#915EFF] text sec-text">{currentText}</span>
           </h1>

@@ -23,9 +23,11 @@ const Navbar = () => {
           }}
         >
           <img src={kitsune} alt="logo" className="w-9 h-9 object-contain" />
-          <p className="text-white text-[18px] font-bold cursor-pointer flex">
-            Hugo &nbsp;{' '}
-            <span className="sm:block hidden">| Développeur Full Stack</span>
+          <p className="text-white text-[18px] font-bold cursor-pointer whitespace-nowrap">
+            Hugo
+            <span className="hidden sm:inline">&nbsp;| AI Product Engineer</span>
+            <span className="hidden lg:inline">&nbsp;| Full-Stack &amp; Mobile</span>
+            <span className="hidden xl:inline">&nbsp;| Automation &amp; AI Agents</span>
           </p>
         </Link>
 

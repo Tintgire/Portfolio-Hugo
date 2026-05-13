@@ -242,6 +242,7 @@ Projet d'entreprise — code source privé. Disponible sur l'App Store.`,
       '/projects/rubi/screen-3.png',
       '/projects/rubi/screen-4.png',
     ],
+    imagePositions: ['center', 'center', 'center', 'bottom'],
     site: 'https://apps.apple.com/us/app/rubi-pays-you/id6720740387',
     source_code_link: 'https://apps.apple.com/us/app/rubi-pays-you/id6720740387',
     links: {

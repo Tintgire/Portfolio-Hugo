@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
-export default function DrawerGallery({ images, alt }) {
+export default function DrawerGallery({ images, alt, imagePositions }) {
   const [activeIndex, setActiveIndex] = useState(0)
 
   if (!images || images.length === 0) return null
 
   const single = images.length === 1
+  const activePosition = imagePositions?.[activeIndex] ?? 'center'
 
   return (
     <div className="w-full">
@@ -20,6 +21,7 @@ export default function DrawerGallery({ images, alt }) {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.98 }}
             transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+            style={{ objectPosition: activePosition }}
             className="absolute inset-0 w-full h-full object-cover"
           />
         </AnimatePresence>
@@ -40,7 +42,12 @@ export default function DrawerGallery({ images, alt }) {
                   : 'border-white/10 opacity-60 hover:opacity-90'
               }`}
             >
-              <img src={src} alt="" className="w-full h-full object-cover" />
+              <img
+                src={src}
+                alt=""
+                style={{ objectPosition: imagePositions?.[i] ?? 'center' }}
+                className="w-full h-full object-cover"
+              />
             </button>
           ))}
         </div>

@@ -83,7 +83,11 @@ export default function ProjectDrawer({ project, onClose }) {
                 </p>
               </header>
 
-              <DrawerGallery images={project.images} alt={project.name} />
+              <DrawerGallery
+                images={project.images}
+                imagePositions={project.imagePositions}
+                alt={project.name}
+              />
 
               {project.longDescription && (
                 <section>

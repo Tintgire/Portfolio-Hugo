@@ -3,7 +3,6 @@ import { Canvas } from '@react-three/fiber'
 import { OrbitControls, useGLTF } from '@react-three/drei'
 
 import CanvasLoader from '../Loader'
-import EarthGlow from './EarthGlow'
 
 const Earth = () => {
   const earth = useGLTF('./planet/scene.gltf')
@@ -37,7 +36,6 @@ const EarthCanvas = () => {
           minPolarAngle={Math.PI / 2}
         />
         <Earth />
-        <EarthGlow />
       </Suspense>
     </Canvas>
   )

@@ -196,7 +196,7 @@
   }
 }
 
-.container .text {
+.text.sec-text {
   position: relative;
   display: inline-block;
 }

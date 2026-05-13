@@ -1,7 +1,15 @@
+import { useRef } from 'react'
 import { motion } from 'framer-motion'
+import { useMagneticHover } from '../../lib/hooks/useMagneticHover'
+import { playClick } from '../../lib/audio/uiSounds'
 
 export default function FeaturedProject({ project, onOpen }) {
   const { name, description, tech, images, links, year } = project
+
+  const liveCtaRef = useRef(null)
+  const detailsCtaRef = useRef(null)
+  const liveMag = useMagneticHover(liveCtaRef, { strength: 0.35, max: 8 })
+  const detailsMag = useMagneticHover(detailsCtaRef, { strength: 0.35, max: 8 })
 
   return (
     <motion.article
@@ -36,22 +44,30 @@ export default function FeaturedProject({ project, onOpen }) {
           </div>
           <div className="flex flex-wrap gap-3">
             {links?.live && (
-              <a
+              <motion.a
+                ref={liveCtaRef}
                 href={links.live.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-gradient-to-br from-pink-500 to-purple-600 text-white text-xs font-bold tracking-wider shadow-lg shadow-pink-500/40 hover:scale-[1.03] transition-transform"
+                onClick={() => playClick()}
+                style={{ x: liveMag.x, y: liveMag.y }}
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-gradient-to-br from-pink-500 to-purple-600 text-white text-xs font-bold tracking-wider shadow-lg shadow-pink-500/40 transition-transform"
               >
                 Voir sur l'{links.live.label} ↗
-              </a>
+              </motion.a>
             )}
-            <button
+            <motion.button
+              ref={detailsCtaRef}
               type="button"
-              onClick={() => onOpen?.(project.id)}
+              onClick={() => {
+                playClick()
+                onOpen?.(project.id)
+              }}
+              style={{ x: detailsMag.x, y: detailsMag.y }}
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-purple-300/40 bg-white/5 text-purple-100 text-xs font-bold tracking-wider hover:bg-white/10 transition-colors"
             >
               Détails du projet
-            </button>
+            </motion.button>
           </div>
           {links?.github?.private && (
             <p className="text-[10px] opacity-55 italic mt-3">

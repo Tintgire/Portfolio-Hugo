@@ -8,6 +8,7 @@ import { github } from '../assets'
 import { SectionWrapper } from '../hoc'
 import { projects } from '../constans'
 import { fadeIn, textVariant } from '../utils/motion'
+import FeaturedProject from './works/FeaturedProject'
 
 const ProjectCard = ({
   index,
@@ -69,6 +70,9 @@ const ProjectCard = ({
 }
 
 const Works = () => {
+  const featured = projects.filter((p) => p.featured)
+  const others = projects.filter((p) => !p.featured)
+
   return (
     <>
       <motion.div variants={textVariant()}>
@@ -95,9 +99,17 @@ const Works = () => {
         </motion.p>
       </div>
 
-      <div className="mt-20 flex flex-wrap gap-7">
-        {projects.map((project, index) => (
-          <ProjectCard key={`project-${index}`} {...project} index={index} />
+      {featured.length > 0 && (
+        <div className="mt-16">
+          {featured.map((project) => (
+            <FeaturedProject key={project.id} project={project} />
+          ))}
+        </div>
+      )}
+
+      <div className="mt-12 flex flex-wrap gap-7">
+        {others.map((project, index) => (
+          <ProjectCard key={project.id ?? `project-${index}`} {...project} index={index} />
         ))}
       </div>
     </>

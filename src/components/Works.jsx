@@ -31,6 +31,7 @@ const ProjectCard = ({
         <div
           role="button"
           tabIndex={0}
+          aria-label={`Voir le détail du projet ${name}`}
           onClick={() => onOpen?.(id)}
           onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {
@@ -38,6 +39,7 @@ const ProjectCard = ({
               onOpen?.(id)
             }
           }}
+          className="rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-[#915EFF] focus-visible:ring-offset-2 focus-visible:ring-offset-tertiary"
         >
           <div className="relative w-full h-[230px]">
             <img

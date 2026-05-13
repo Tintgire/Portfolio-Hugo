@@ -205,16 +205,18 @@
   content: '';
   position: absolute;
   top: 0;
-  left: 0;
+  left: calc(100% + 4px);
   height: 100%;
-  width: 100%;
   border-left: 2px solid #915eff;
-  animation: animate 4s steps(12) infinite;
+  animation: blink 1s step-end infinite;
 }
 
-@keyframes animate {
+@keyframes blink {
   0%,
   100% {
-    left: calc(100% + 4px);
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
   }
 }

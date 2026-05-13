@@ -211,95 +211,111 @@ const testimonials = [
 
 const projects = [
   {
+    id: 'rubi',
+    name: 'Rubi te paye',
+    type: 'mobile',
+    featured: true,
+    year: '2025',
+    description: `Application qui vous paie pour qui vous êtes. Contrôle total de vos données, compensation directe à chaque utilisation, sécurité garantie.`,
+    tags: [
+      { name: `React Native`, color: `text-cyan-400 text-gradient` },
+      { name: `Next.js`, color: `text-white text-gradient` },
+      { name: `Tailwind`, color: `text-sky-400 text-gradient` },
+      { name: `Supabase`, color: `text-green-400 text-gradient` },
+      { name: `Firebase`, color: `text-orange-400 text-gradient` },
+      { name: `Docker`, color: `text-blue-400 text-gradient` },
+    ],
+    tech: [
+      'React Native', 'Next.js', 'Tailwind', 'Supabase', 'Docker',
+      'Firebase', 'Java', 'Ruby', 'Kotlin', 'Objective-C',
+      'SCSS', 'JavaScript', 'HTML', 'Shell',
+    ],
+    image: '/projects/rubi/screen-2.png',
+    images: [
+      '/projects/rubi/screen-1.png',
+      '/projects/rubi/screen-2.png',
+      '/projects/rubi/screen-3.png',
+      '/projects/rubi/screen-4.png',
+    ],
+    site: 'https://apps.apple.com/us/app/rubi-pays-you/id6720740387',
+    source_code_link: 'https://apps.apple.com/us/app/rubi-pays-you/id6720740387',
+    links: {
+      live: { url: 'https://apps.apple.com/us/app/rubi-pays-you/id6720740387', label: 'App Store' },
+      github: { private: true, reason: `Projet d'entreprise` },
+    },
+  },
+  {
+    id: 'kasa',
     name: `Kaza`,
+    type: 'web',
+    featured: false,
+    year: '2023',
     description: `En utilisant React et Figma, créez une application web de location immobilière en initiant une application avec Create React App, configurant la navigation entre les pages avec React Router, et développant des éléments d'interface de site web grâce à des composants React.`,
     tags: [
-      {
-        name: `Html`,
-        color: `text-blue-500 text-gradient`,
-      },
-      {
-        name: `Css`,
-        color: `text-green-500 text-gradient`,
-      },
-      {
-        name: `Scss`,
-        color: `text-pink-500 text-gradient`,
-      },
-      {
-        name: `Javascript`,
-        color: `text-orange-500 text-gradient`,
-      },
-      {
-        name: `React`,
-        color: `text-indigo-600 text-gradient`,
-      },
-      {
-        name: `Figma`,
-        color: `text-fuchsia-600 text-gradient`,
-      },
+      { name: `Html`, color: `text-blue-500 text-gradient` },
+      { name: `Css`, color: `text-green-500 text-gradient` },
+      { name: `Scss`, color: `text-pink-500 text-gradient` },
+      { name: `Javascript`, color: `text-orange-500 text-gradient` },
+      { name: `React`, color: `text-indigo-600 text-gradient` },
+      { name: `Figma`, color: `text-fuchsia-600 text-gradient` },
     ],
+    tech: ['HTML', 'CSS', 'SCSS', 'JavaScript', 'React', 'Figma'],
     image: kasa,
-    source_code_link: `https://github.com/Tintgire/projet-7-OC`,
+    images: [kasa],
     site: `https://github.com/Tintgire/projet-7-OC`,
+    source_code_link: `https://github.com/Tintgire/projet-7-OC`,
+    links: {
+      live: null,
+      github: { url: `https://github.com/Tintgire/projet-7-OC` },
+    },
   },
   {
+    id: 'hottakes',
     name: `Hot Takes`,
+    type: 'web',
+    featured: false,
+    year: '2023',
     description: `Construisez une API sécurisée pour une application d'avis gastronomiques, implémenter un modèle logique de données conformément à la réglementation, stocker des données de manière sécurisée et garantir la confidentialité des utilisateurs en mettant en place des mesures robustes de protection des données.`,
     tags: [
-      {
-        name: `TypeScript`,
-        color: `blue-text-gradient`,
-      },
-      {
-        name: `Javascript`,
-        color: `text-orange-500 text-gradient`,
-      },
-      {
-        name: `Express.js`,
-        color: `text-lime-500 text-gradient`,
-      },
-      {
-        name: `Api Rest`,
-        color: `text-yellow-500 text-gradient`,
-      },
-      {
-        name: `MongoDB`,
-        color: `text-red-500 text-gradient`,
-      },
-      {
-        name: `Node.js`,
-        color: `text-purple-500 text-gradient`,
-      },
+      { name: `TypeScript`, color: `blue-text-gradient` },
+      { name: `Javascript`, color: `text-orange-500 text-gradient` },
+      { name: `Express.js`, color: `text-lime-500 text-gradient` },
+      { name: `Api Rest`, color: `text-yellow-500 text-gradient` },
+      { name: `MongoDB`, color: `text-red-500 text-gradient` },
+      { name: `Node.js`, color: `text-purple-500 text-gradient` },
     ],
+    tech: ['TypeScript', 'JavaScript', 'Express.js', 'REST API', 'MongoDB', 'Node.js'],
     image: hottakes,
-    source_code_link: `https://github.com/Tintgire/Projet-6-OC`,
+    images: [hottakes],
     site: `https://github.com/Tintgire/Projet-6-OC`,
+    source_code_link: `https://github.com/Tintgire/Projet-6-OC`,
+    links: {
+      live: null,
+      github: { url: `https://github.com/Tintgire/Projet-6-OC` },
+    },
   },
   {
+    id: 'kanap',
     name: `Kanap`,
+    type: 'web',
+    featured: false,
+    year: '2022',
     description: `En construisant un site e-commerce en JavaScript, vous serez en mesure de créer un plan de test pour l'application, de valider les données provenant de sources externes, d'interagir avec un web service à l'aide de JavaScript, et de gérer les événements JavaScript.`,
     tags: [
-      {
-        name: `Html`,
-        color: `text-blue-500 text-gradient`,
-      },
-      {
-        name: `Css`,
-        color: `text-green-500 text-gradient`,
-      },
-      {
-        name: `Scss`,
-        color: `text-pink-500 text-gradient`,
-      },
-      {
-        name: `Javascript`,
-        color: `text-orange-500 text-gradient`,
-      },
+      { name: `Html`, color: `text-blue-500 text-gradient` },
+      { name: `Css`, color: `text-green-500 text-gradient` },
+      { name: `Scss`, color: `text-pink-500 text-gradient` },
+      { name: `Javascript`, color: `text-orange-500 text-gradient` },
     ],
+    tech: ['HTML', 'CSS', 'SCSS', 'JavaScript'],
     image: kanap,
-    source_code_link: `https://github.com/Tintgire/Projet-5-OC`,
+    images: [kanap],
     site: `https://github.com/Tintgire/Projet-5-OC`,
+    source_code_link: `https://github.com/Tintgire/Projet-5-OC`,
+    links: {
+      live: null,
+      github: { url: `https://github.com/Tintgire/Projet-5-OC` },
+    },
   },
 ]
 

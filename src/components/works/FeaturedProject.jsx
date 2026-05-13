@@ -1,0 +1,95 @@
+import { motion } from 'framer-motion'
+
+export default function FeaturedProject({ project }) {
+  const { name, description, tech, images, links, year } = project
+
+  return (
+    <motion.article
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-100px' }}
+      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+      className="relative w-full rounded-3xl overflow-hidden border border-[#915EFF]/25 bg-gradient-to-br from-[#1a0a35] via-[#2a1156] to-[#050211] p-8 sm:p-12 my-8"
+    >
+      <div className="grid lg:grid-cols-[1fr_420px] gap-10 items-center">
+        <div className="relative z-10">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-500/15 border border-pink-500/40 text-pink-300 text-[10px] tracking-[0.2em] uppercase font-bold mb-4">
+            <span className="w-1.5 h-1.5 rounded-full bg-pink-400 animate-pulse" />
+            Live on App Store
+            <span className="opacity-60 ml-1">· {year}</span>
+          </div>
+          <h3 className="text-4xl sm:text-5xl font-black tracking-tight leading-none mb-3 bg-gradient-to-br from-white via-pink-300 to-purple-400 bg-clip-text text-transparent">
+            {name}
+          </h3>
+          <p className="text-white/85 text-base leading-relaxed mb-5 max-w-2xl">
+            {description}
+          </p>
+          <div className="flex flex-wrap gap-1.5 mb-6 max-w-2xl">
+            {tech.map((t) => (
+              <span
+                key={t}
+                className="text-[10px] px-2 py-1 rounded bg-purple-300/10 border border-purple-300/25 text-purple-200"
+              >
+                {t}
+              </span>
+            ))}
+          </div>
+          <div className="flex flex-wrap gap-3">
+            {links?.live && (
+              <a
+                href={links.live.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-gradient-to-br from-pink-500 to-purple-600 text-white text-xs font-bold tracking-wider shadow-lg shadow-pink-500/40 hover:scale-[1.03] transition-transform"
+              >
+                Voir sur l'{links.live.label} ↗
+              </a>
+            )}
+          </div>
+          {links?.github?.private && (
+            <p className="text-[10px] opacity-55 italic mt-3">
+              ⚿ Code source privé — {links.github.reason}
+            </p>
+          )}
+        </div>
+
+        <div className="relative h-[420px] mx-auto lg:mx-0 lg:justify-self-end" style={{ perspective: '1000px' }}>
+          <PhoneMockup src={images[3]} pos={{ left: '10%', top: '60px' }} transform={{ rotateY: -20, rotateZ: 8, scale: 0.85 }} opacity={0.85} z={10} />
+          <PhoneMockup src={images[2]} pos={{ left: '28%', top: '10px' }} transform={{ rotateY: -15, rotateZ: 4 }} z={20} />
+          <PhoneMockup src={images[1]} pos={{ left: '50%', top: '0' }} transform={{ rotateY: 0, rotateZ: 0 }} z={30} featured />
+          <PhoneMockup src={images[0]} pos={{ left: '72%', top: '20px' }} transform={{ rotateY: 15, rotateZ: -6 }} z={20} />
+        </div>
+      </div>
+
+      <div aria-hidden className="absolute -top-20 -right-20 w-72 h-72 bg-purple-500/30 rounded-full blur-3xl pointer-events-none" />
+      <div aria-hidden className="absolute -bottom-20 -left-20 w-72 h-72 bg-pink-500/20 rounded-full blur-3xl pointer-events-none" />
+    </motion.article>
+  )
+}
+
+function PhoneMockup({ src, pos, transform, opacity = 1, z = 1, featured = false }) {
+  const transformStr = `rotateY(${transform.rotateY}deg) rotateZ(${transform.rotateZ}deg) scale(${transform.scale ?? 1})`
+  return (
+    <motion.div
+      animate={{ y: [0, -8, 0] }}
+      transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+      style={{
+        position: 'absolute',
+        left: pos.left,
+        top: pos.top,
+        transform: transformStr,
+        transformStyle: 'preserve-3d',
+        opacity,
+        zIndex: z,
+        width: '130px',
+        height: '270px',
+      }}
+      className={`rounded-[22px] bg-black border-2 ${featured ? 'border-white/30' : 'border-white/15'} overflow-hidden shadow-2xl shadow-black/60`}
+    >
+      <div className="absolute inset-1 rounded-[18px] overflow-hidden">
+        <img src={src} alt="" className="w-full h-full object-cover" />
+      </div>
+      <div aria-hidden className="absolute inset-0 rounded-[22px] shadow-[inset_0_0_30px_rgba(145,94,255,0.3)] pointer-events-none" />
+    </motion.div>
+  )
+}

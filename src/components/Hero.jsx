@@ -12,7 +12,7 @@ const Hero = () => {
   const [animationInProgress, setAnimationInProgress] = useState(false)
 
   const texts = useMemo(
-    () => ['Hugo', 'Dev Front End', 'Dev Back End', 'Full Stack'],
+    () => ['Hugo', 'AI Product Engineer', 'Full-Stack & Mobile', 'Automation & AI Agents'],
     []
   )
 

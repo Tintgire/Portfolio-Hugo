@@ -76,7 +76,7 @@ export default function FeaturedProject({ project, onOpen }) {
           )}
         </div>
 
-        <div className="relative h-[420px] mx-auto lg:mx-0 lg:justify-self-end" style={{ perspective: '1000px' }}>
+        <div className="relative h-[420px] w-full max-w-[420px] mx-auto lg:mx-0" style={{ perspective: '1000px' }}>
           <PhoneMockup src={images[3]} pos={{ left: '10%', top: '60px' }} transform={{ rotateY: -20, rotateZ: 8, scale: 0.85 }} opacity={0.85} z={10} />
           <PhoneMockup src={images[2]} pos={{ left: '28%', top: '10px' }} transform={{ rotateY: -15, rotateZ: 4 }} z={20} />
           <PhoneMockup src={images[1]} pos={{ left: '50%', top: '0' }} transform={{ rotateY: 0, rotateZ: 0 }} z={30} featured />

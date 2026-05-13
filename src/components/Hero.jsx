@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+import { motion, useScroll, useTransform } from 'framer-motion'
 import { useEffect, useState, useCallback, useMemo } from 'react'
 import { styles } from '../styles'
 import { ComputersCanvas } from './canvas'
@@ -67,6 +67,13 @@ const Hero = () => {
     }
   }, [startTypingAnimation])
 
+  const { scrollY } = useScroll()
+  const canvasOpacity = useTransform(
+    scrollY,
+    [0, typeof window !== 'undefined' ? window.innerHeight * 0.6 : 600],
+    [1, 0]
+  )
+
   return (
     <section className="relative w-80vw h-screen mx-auto overflow-hidden">
       <div
@@ -87,7 +94,9 @@ const Hero = () => {
           </p>
         </div>
       </div>
-      <ComputersCanvas />
+      <motion.div className="absolute inset-0" style={{ opacity: canvasOpacity }}>
+        <ComputersCanvas />
+      </motion.div>
       <div className="absolute xs:bottom-10 bottom-32 w-full flex justify-center items-center">
         <a href="#about">
           <div className="w-[30px] h-[50px] rounded-3xl border-4 border-secondary flex justify-center items-start p-1">

@@ -15,6 +15,14 @@
   color-scheme: dark;
 }
 
+/* Prevent the full-bleed particle canvas (and any other 100vw element) from
+ * triggering a horizontal scrollbar. `clip` doesn't create a new scroll
+ * container the way `hidden` does, so it stays compatible with Lenis. */
+html,
+body {
+  overflow-x: clip;
+}
+
 .hash-span {
   margin-top: -100px;
   padding-bottom: 100px;

@@ -1,17 +1,12 @@
 import React, { useEffect, useRef } from 'react'
-import {
-  VerticalTimeline,
-  VerticalTimelineElement,
-} from 'react-vertical-timeline-component'
 import { motion } from 'framer-motion'
 
 import { experiences } from '../constans'
 import { SectionWrapper } from '../hoc'
-import { textVariant } from '../utils/motion'
 import { playTick } from '../lib/audio/uiSounds'
 
-import 'react-vertical-timeline-component/style.min.css'
 import { styles } from '../styles'
+import TimelineParticles from './experience/TimelineParticles'
 
 const Section = ({ label, children }) => (
   <div className="mt-4">
@@ -22,7 +17,7 @@ const Section = ({ label, children }) => (
   </div>
 )
 
-const ExperienceCard = ({ experience }) => {
+function ExperienceCard({ experience }) {
   const ref = useRef(null)
 
   useEffect(() => {
@@ -41,138 +36,195 @@ const ExperienceCard = ({ experience }) => {
   const hasIcon = !!experience.icon
 
   return (
-    <VerticalTimelineElement
-      contentStyle={{
-        background: 'linear-gradient(135deg, #1a0a35 0%, #2a1156 100%)',
-        color: '#fff',
-        boxShadow: '0 10px 40px -10px rgba(145, 94, 255, 0.35)',
-        border: '1px solid rgba(145, 94, 255, 0.25)',
-        borderRadius: '20px',
-        padding: '28px 30px',
-      }}
-      contentArrowStyle={{ borderRight: '7px solid #2a1156' }}
-      date={experience.date}
-      iconStyle={{
-        background: experience.iconBg ?? '#915EFF',
-        boxShadow: '0 0 0 4px #1d1836, inset 0 2px 4px rgba(0, 0, 0, 0.3)',
-      }}
-      icon={
-        hasIcon ? (
-          <div className="flex justify-center items-center w-full h-full">
-            <img
-              src={experience.icon}
-              alt={experience.company_name}
-              className="w-[60%] h-[60%] object-contain"
-            />
-          </div>
-        ) : (
-          <div className="flex justify-center items-center w-full h-full text-white font-black text-base tracking-wide">
-            {experience.initials}
-          </div>
-        )
-      }
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-80px' }}
+      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+      className="relative w-full rounded-[20px] border border-[#915EFF]/25 bg-gradient-to-br from-[#1a0a35] to-[#2a1156] p-6 sm:p-7 shadow-[0_10px_40px_-10px_rgba(145,94,255,0.35)]"
     >
-      <div ref={ref}>
-        {experience.type && (
-          <div className="inline-flex items-center text-[10px] font-bold uppercase tracking-[0.2em] px-2 py-1 rounded bg-pink-500/15 border border-pink-500/40 text-pink-300 mb-3">
-            {experience.type}
-          </div>
-        )}
-
-        <h3 className="text-white text-[22px] sm:text-[24px] font-bold leading-tight">
-          {experience.title}
-        </h3>
-
-        <p
-          className="mt-1 text-purple-200 text-[15px] font-semibold tracking-wide"
-          style={{ margin: 0 }}
+      <div className="flex items-start gap-4 mb-3 lg:hidden">
+        <span
+          className="shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-white font-black text-sm"
+          style={{ background: experience.iconBg ?? '#915EFF', boxShadow: '0 0 0 3px #1d1836' }}
+          aria-hidden="true"
         >
-          {experience.company_name}
+          {hasIcon ? (
+            <img src={experience.icon} alt="" className="w-[60%] h-[60%] object-contain" />
+          ) : (
+            experience.initials
+          )}
+        </span>
+        <div>
+          <p className="text-[11px] uppercase tracking-[0.2em] text-white/55 font-bold">{experience.date}</p>
+        </div>
+      </div>
+
+      {experience.type && (
+        <div className="inline-flex items-center text-[10px] font-bold uppercase tracking-[0.2em] px-2 py-1 rounded bg-pink-500/15 border border-pink-500/40 text-pink-300 mb-3">
+          {experience.type}
+        </div>
+      )}
+
+      <h3 className="text-white text-[22px] sm:text-[24px] font-bold leading-tight">
+        {experience.title}
+      </h3>
+
+      <p className="mt-1 text-purple-200 text-[15px] font-semibold tracking-wide">
+        {experience.company_name}
+      </p>
+
+      {experience.context && (
+        <p className="mt-1 text-white/55 text-[12px] italic leading-snug">
+          {experience.context}
         </p>
+      )}
 
-        {experience.context && (
-          <p className="mt-1 text-white/55 text-[12px] italic leading-snug">
-            {experience.context}
-          </p>
-        )}
+      {experience.challenge && (
+        <Section label="Défi">
+          <p className="text-white/85 text-[14px] leading-relaxed">{experience.challenge}</p>
+        </Section>
+      )}
 
-        {experience.challenge && (
-          <Section label="Défi">
-            <p className="text-white/85 text-[14px] leading-relaxed">{experience.challenge}</p>
-          </Section>
-        )}
-
-        {experience.keyProjects?.length > 0 && (
-          <Section label="Projets clés">
-            <ul className="space-y-1.5">
-              {experience.keyProjects.map((p) => (
-                <li key={p.name} className="text-white/80 text-[13px] leading-relaxed">
-                  <span className="text-pink-300 font-semibold">{p.name}</span>
-                  <span className="text-white/40"> — </span>
-                  {p.description}
-                </li>
-              ))}
-            </ul>
-          </Section>
-        )}
-
-        {experience.points?.length > 0 && (
-          <Section label={experience.actionsLabel ?? 'Actions'}>
-            <ul className="list-disc ml-5 space-y-1.5">
-              {experience.points.map((point, index) => (
-                <li
-                  key={`exp-point-${index}`}
-                  className="text-white/80 text-[13px] leading-relaxed pl-1"
-                >
-                  {point}
-                </li>
-              ))}
-            </ul>
-          </Section>
-        )}
-
-        {experience.results && (
-          <div className="mt-4 p-3 rounded-lg border border-pink-500/30 bg-gradient-to-br from-pink-500/10 to-purple-500/5">
-            <h4 className="text-[10px] font-bold uppercase tracking-[0.3em] text-pink-200 mb-1.5">
-              Résultats
-            </h4>
-            <p className="text-white/85 text-[13px] leading-relaxed">{experience.results}</p>
-          </div>
-        )}
-
-        {experience.stack?.length > 0 && (
-          <div className="mt-4 flex flex-wrap gap-1.5">
-            {experience.stack.map((t) => (
-              <span
-                key={t}
-                className="text-[10px] px-2 py-1 rounded bg-purple-300/10 border border-purple-300/25 text-purple-200"
-              >
-                {t}
-              </span>
+      {experience.keyProjects?.length > 0 && (
+        <Section label="Projets clés">
+          <ul className="space-y-1.5">
+            {experience.keyProjects.map((p) => (
+              <li key={p.name} className="text-white/80 text-[13px] leading-relaxed">
+                <span className="text-pink-300 font-semibold">{p.name}</span>
+                <span className="text-white/40"> — </span>
+                {p.description}
+              </li>
             ))}
-          </div>
+          </ul>
+        </Section>
+      )}
+
+      {experience.points?.length > 0 && (
+        <Section label={experience.actionsLabel ?? 'Actions'}>
+          <ul className="list-disc ml-5 space-y-1.5">
+            {experience.points.map((point, index) => (
+              <li
+                key={`exp-point-${index}`}
+                className="text-white/80 text-[13px] leading-relaxed pl-1"
+              >
+                {point}
+              </li>
+            ))}
+          </ul>
+        </Section>
+      )}
+
+      {experience.results && (
+        <div className="mt-4 p-3 rounded-lg border border-pink-500/30 bg-gradient-to-br from-pink-500/10 to-purple-500/5">
+          <h4 className="text-[10px] font-bold uppercase tracking-[0.3em] text-pink-200 mb-1.5">
+            Résultats
+          </h4>
+          <p className="text-white/85 text-[13px] leading-relaxed">{experience.results}</p>
+        </div>
+      )}
+
+      {experience.stack?.length > 0 && (
+        <div className="mt-4 flex flex-wrap gap-1.5">
+          {experience.stack.map((t) => (
+            <span
+              key={t}
+              className="text-[10px] px-2 py-1 rounded bg-purple-300/10 border border-purple-300/25 text-purple-200"
+            >
+              {t}
+            </span>
+          ))}
+        </div>
+      )}
+    </motion.div>
+  )
+}
+
+function TimelineNode({ experience }) {
+  const hasIcon = !!experience.icon
+  return (
+    <div className="flex flex-col items-center pt-8">
+      <div
+        className="w-12 h-12 rounded-full flex items-center justify-center text-white font-black text-base shadow-[0_0_0_4px_#1d1836]"
+        style={{ background: experience.iconBg ?? '#915EFF' }}
+      >
+        {hasIcon ? (
+          <img
+            src={experience.icon}
+            alt={experience.company_name}
+            className="w-[60%] h-[60%] object-contain"
+          />
+        ) : (
+          experience.initials
         )}
       </div>
-    </VerticalTimelineElement>
+      <p className="mt-3 text-[11px] uppercase tracking-[0.2em] text-white/55 whitespace-nowrap font-bold text-center">
+        {experience.date}
+      </p>
+    </div>
+  )
+}
+
+function TimelineRow({ experience, index }) {
+  const isLeft = index % 2 === 0
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-[1fr_140px_1fr] gap-6 lg:gap-10 items-start">
+      {isLeft ? (
+        <>
+          <div className="lg:col-start-1">
+            <ExperienceCard experience={experience} />
+          </div>
+          <div className="hidden lg:block lg:col-start-2">
+            <TimelineNode experience={experience} />
+          </div>
+          <div className="hidden lg:flex lg:col-start-3 items-center justify-center min-h-[280px]">
+            <TimelineParticles pattern={index} height={280} />
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="hidden lg:flex lg:col-start-1 items-center justify-center min-h-[280px]">
+            <TimelineParticles pattern={index} height={280} />
+          </div>
+          <div className="hidden lg:block lg:col-start-2">
+            <TimelineNode experience={experience} />
+          </div>
+          <div className="lg:col-start-3">
+            <ExperienceCard experience={experience} />
+          </div>
+        </>
+      )}
+    </div>
   )
 }
 
 const Experience = () => {
   return (
     <>
-      <motion.div variants={textVariant()}>
-        <p className={styles.sectionSubText}>
-          Ce que j'ai fait jusqu'à présent
-        </p>
+      <motion.div
+        initial={{ opacity: 0, y: -30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0 }}
+        transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <p className={styles.sectionSubText}>Ce que j'ai fait jusqu'à présent</p>
         <h2 className={styles.sectionHeadText}>Expérience professionnelle</h2>
       </motion.div>
 
-      <div className="mt-20 flex flex-col">
-        <VerticalTimeline>
-          {experiences.map((experience, index) => (
-            <ExperienceCard key={index} experience={experience} />
+      <div className="relative mt-16">
+        {/* Center vertical rail — desktop only */}
+        <div
+          aria-hidden="true"
+          className="hidden lg:block absolute left-1/2 top-0 bottom-0 -translate-x-1/2 w-px bg-gradient-to-b from-transparent via-purple-500/40 to-transparent pointer-events-none"
+        />
+
+        <div className="space-y-10 lg:space-y-16">
+          {experiences.map((exp, i) => (
+            <TimelineRow key={i} experience={exp} index={i} />
           ))}
-        </VerticalTimeline>
+        </div>
       </div>
     </>
   )

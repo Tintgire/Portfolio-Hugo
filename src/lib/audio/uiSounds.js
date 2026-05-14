@@ -118,7 +118,7 @@ export function playTick() {
 const layers = { drone: null, plucks: null, breath: null, bells: null }
 const FADE_IN = { drone: 3.5, plucks: 2.5, breath: 3, bells: 2 }
 const FADE_OUT = 2
-const MASTER_LEVEL = { drone: 0.035, plucks: 0.025, breath: 0.022, bells: 0.025 }
+const MASTER_LEVEL = { drone: 0.022, plucks: 0.025, breath: 0.014, bells: 0.025 }
 
 function startLayer(name) {
   if (!isSoundEnabled() || layers[name]) return
@@ -194,10 +194,11 @@ function buildBreath(c, master, now) {
     { freq: 466.16, detune: -3 },  // Bb4
     { freq: 622.25, detune: 5 },   // Eb5
   ]
+  // Slow breath LFO — chord swells in and out every ~10 s for a chill, spaced feel
   const tremolo = c.createOscillator()
   const tremoloDepth = c.createGain()
-  tremolo.frequency.value = 3.5
-  tremoloDepth.gain.value = 0.15
+  tremolo.frequency.value = 0.1
+  tremoloDepth.gain.value = 0.35
   tremolo.start(now)
 
   const nodes = voices.map(({ freq, detune }) => {

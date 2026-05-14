@@ -107,267 +107,225 @@ export function playTick() {
   tone({ frequency: 1320, duration: 0.025, type: 'sine', volume: 0.045, attack: 0.001, release: 0.04 })
 }
 
-// ─── Outer Wilds-flavored scroll-layered soundtrack ─────────────────────────
-// Six General MIDI-sampled instruments (royalty-free FluidR3 soundfont) play
-// an original C minor arrangement. Each layer is gated by total scroll
-// progress and fades in/out symmetrically when its threshold is crossed.
-//
-//   0%   piano        sustained Cm → Abmaj7-ish chord (base)
-//   17%  banjo        descending arpeggio at 60 BPM
-//   33%  harmonica    sustained pad an octave up
-//   50%  flute        slow melody
-//   67%  whistle      sparse high response
-//   83%  drums        gentle pulse on beats 1 and 3
+// ─── Outer Wilds-flavored layered soundtrack ────────────────────────────────
+// Four layers in C minor, gated by scroll progress:
+//   0%   drone   sustained C2/G2/Eb3/C4 chord with LFO breathing
+//   25%  plucks  triangle arpeggio (banjo-ish), 60 BPM
+//   50%  breath  detuned-triangle chord pad an octave up (harmonica-ish)
+//   75%  bells   sparse sine + 2x harmonic melody (flute/glock-ish)
+// setMusicProgress(0..1) toggles layers in/out symmetrically.
 
-import Soundfont from 'soundfont-player'
-
-const BEAT = 1.2 // 50 BPM — slow, contemplative
-const LOOKAHEAD = 0.1
-const TICK_MS = 50
+const layers = { drone: null, plucks: null, breath: null, bells: null }
+const FADE_IN = { drone: 3.5, plucks: 2.5, breath: 3, bells: 2 }
 const FADE_OUT = 2
+const MASTER_LEVEL = { drone: 0.035, plucks: 0.025, breath: 0.022, bells: 0.025 }
 
-const INSTRUMENT_GM = {
-  piano: 'acoustic_grand_piano',
-  banjo: 'banjo',
-  harmonica: 'harmonica',
-  flute: 'flute',
-  whistle: 'whistle',
-  drums: 'synth_drum',
-}
-
-const THRESHOLDS = {
-  piano: 0,
-  banjo: 0.17,
-  harmonica: 0.33,
-  flute: 0.5,
-  whistle: 0.67,
-  drums: 0.83,
-}
-
-const MASTER_LEVEL = {
-  piano: 0.45,
-  banjo: 0.35,
-  harmonica: 0.3,
-  flute: 0.4,
-  whistle: 0.4,
-  drums: 0.25,
-}
-
-const FADE_IN = {
-  piano: 3,
-  banjo: 2,
-  harmonica: 2.5,
-  flute: 2,
-  whistle: 2,
-  drums: 2,
-}
-
-// 32-beat loop (~38s at 50 BPM). Chord progression i-VI-III-VII in C minor:
-// Cm (beats 0-7) → Ab (8-15) → Eb (16-23) → Bb (24-31) → back to Cm.
-const SCORES = {
-  piano: {
-    loopBeats: 32,
-    events: [
-      // Cm triad
-      { beat: 0, note: 'C3', duration: 7.5 },
-      { beat: 0, note: 'Eb3', duration: 7.5 },
-      { beat: 0, note: 'G3', duration: 7.5 },
-      // Ab triad
-      { beat: 8, note: 'Ab2', duration: 7.5 },
-      { beat: 8, note: 'C3', duration: 7.5 },
-      { beat: 8, note: 'Eb3', duration: 7.5 },
-      // Eb triad
-      { beat: 16, note: 'Eb3', duration: 7.5 },
-      { beat: 16, note: 'G3', duration: 7.5 },
-      { beat: 16, note: 'Bb3', duration: 7.5 },
-      // Bb triad
-      { beat: 24, note: 'Bb2', duration: 7.5 },
-      { beat: 24, note: 'D3', duration: 7.5 },
-      { beat: 24, note: 'F3', duration: 7.5 },
-    ],
-  },
-  banjo: {
-    // Slow root-fifth-third-fifth pattern per chord (every 2 beats)
-    loopBeats: 32,
-    events: [
-      { beat: 0, note: 'C3', duration: 0.6 },
-      { beat: 2, note: 'G3', duration: 0.6 },
-      { beat: 4, note: 'Eb3', duration: 0.6 },
-      { beat: 6, note: 'G3', duration: 0.6 },
-      { beat: 8, note: 'Ab2', duration: 0.6 },
-      { beat: 10, note: 'Eb3', duration: 0.6 },
-      { beat: 12, note: 'C3', duration: 0.6 },
-      { beat: 14, note: 'Eb3', duration: 0.6 },
-      { beat: 16, note: 'Eb3', duration: 0.6 },
-      { beat: 18, note: 'Bb3', duration: 0.6 },
-      { beat: 20, note: 'G3', duration: 0.6 },
-      { beat: 22, note: 'Bb3', duration: 0.6 },
-      { beat: 24, note: 'Bb2', duration: 0.6 },
-      { beat: 26, note: 'F3', duration: 0.6 },
-      { beat: 28, note: 'D3', duration: 0.6 },
-      { beat: 30, note: 'F3', duration: 0.6 },
-    ],
-  },
-  harmonica: {
-    // One long sustained note per chord, hitting the 5th or 3rd
-    loopBeats: 32,
-    events: [
-      { beat: 0, note: 'G4', duration: 7.5 },   // 5th of Cm
-      { beat: 8, note: 'C5', duration: 7.5 },   // 3rd of Ab
-      { beat: 16, note: 'Bb4', duration: 7.5 }, // 5th of Eb
-      { beat: 24, note: 'D5', duration: 7.5 },  // 3rd of Bb
-    ],
-  },
-  flute: {
-    // Simple stepwise melody, one phrase per chord
-    loopBeats: 32,
-    events: [
-      { beat: 0, note: 'G5', duration: 2 },
-      { beat: 3, note: 'Eb5', duration: 1.5 },
-      { beat: 5, note: 'F5', duration: 2.5 },
-      { beat: 8, note: 'Eb5', duration: 3 },
-      { beat: 12, note: 'C5', duration: 3.5 },
-      { beat: 16, note: 'Bb5', duration: 2 },
-      { beat: 19, note: 'G5', duration: 2 },
-      { beat: 22, note: 'F5', duration: 1.5 },
-      { beat: 24, note: 'F5', duration: 2 },
-      { beat: 27, note: 'D5', duration: 1.5 },
-      { beat: 29, note: 'Eb5', duration: 2.5 }, // resolves back to Cm
-    ],
-  },
-  whistle: {
-    // Counter-melody above the flute, very sparse
-    loopBeats: 32,
-    events: [
-      { beat: 11, note: 'C6', duration: 1.5 },
-      { beat: 26, note: 'Bb5', duration: 2 },
-    ],
-  },
-  drums: {
-    // Atmospheric pulse — once per chord change, very soft
-    loopBeats: 32,
-    events: [
-      { beat: 0, note: 'C3', duration: 0.3 },
-      { beat: 8, note: 'C3', duration: 0.3 },
-      { beat: 16, note: 'C3', duration: 0.3 },
-      { beat: 24, note: 'C3', duration: 0.3 },
-    ],
-  },
-}
-
-const instrumentCache = {}
-const masters = {}
-const activeLayers = {}
-const requestTokens = {}
-let musicActive = false
-let lastProgress = 0
-let globalStartTime = null
-
-function ensureMaster(name) {
-  if (masters[name]) return masters[name]
-  const c = getContext()
-  if (!c) return null
-  const g = c.createGain()
-  g.gain.value = 0
-  g.connect(c.destination)
-  masters[name] = g
-  return g
-}
-
-function loadInstrument(name) {
-  if (instrumentCache[name]) return instrumentCache[name]
-  const c = getContext()
-  if (!c) return Promise.reject(new Error('no audio context'))
-  const master = ensureMaster(name)
-  instrumentCache[name] = Soundfont.instrument(c, INSTRUMENT_GM[name], {
-    destination: master,
-    format: 'ogg',
-  })
-  return instrumentCache[name]
-}
-
-function computeEventTime(score, index) {
-  const loop = Math.floor(index / score.events.length)
-  const ev = score.events[index % score.events.length]
-  return (loop * score.loopBeats + ev.beat) * BEAT
-}
-
-async function startLayer(name) {
-  if (!isSoundEnabled() || activeLayers[name]) return
+function startLayer(name) {
+  if (!isSoundEnabled() || layers[name]) return
   const c = getContext()
   if (!c) return
   if (c.state === 'suspended') c.resume().catch(() => {})
 
-  const token = (requestTokens[name] = (requestTokens[name] ?? 0) + 1)
-  activeLayers[name] = { loading: true, token }
-
-  let player
-  try {
-    player = await loadInstrument(name)
-  } catch {
-    delete activeLayers[name]
-    return
-  }
-
-  if (requestTokens[name] !== token) return
-  if (!activeLayers[name]?.loading) return
-
-  const master = masters[name]
+  const master = c.createGain()
   const now = c.currentTime
-  master.gain.cancelScheduledValues(now)
-  master.gain.setValueAtTime(master.gain.value, now)
+  master.gain.setValueAtTime(0, now)
   master.gain.linearRampToValueAtTime(MASTER_LEVEL[name], now + FADE_IN[name])
+  master.connect(c.destination)
 
-  if (globalStartTime === null) globalStartTime = c.currentTime
-  const startTime = globalStartTime
-  const score = SCORES[name]
-  let nextEvIndex = 0
-
-  // Skip past events so we start in-phase with the rest of the score
-  for (let safety = 0; safety < 100000; safety++) {
-    const t = startTime + computeEventTime(score, nextEvIndex)
-    if (t >= c.currentTime - 0.05) break
-    nextEvIndex++
-  }
-
-  const tick = () => {
-    if (!activeLayers[name] || activeLayers[name].token !== token) return
-    const horizon = c.currentTime + LOOKAHEAD
-    while (true) {
-      const t = startTime + computeEventTime(score, nextEvIndex)
-      if (t > horizon) break
-      if (t >= c.currentTime - 0.05) {
-        const ev = score.events[nextEvIndex % score.events.length]
-        try {
-          player.play(ev.note, t, { duration: ev.duration ?? 1 })
-        } catch {
-          // ignore failed note
-        }
-      }
-      nextEvIndex++
-    }
-  }
-
-  tick()
-  const scheduler = setInterval(tick, TICK_MS)
-  activeLayers[name] = { scheduler, token, player }
+  if (name === 'drone') layers.drone = buildDrone(c, master, now)
+  else if (name === 'plucks') layers.plucks = buildScheduled(c, master, pluckScore)
+  else if (name === 'breath') layers.breath = buildBreath(c, master, now)
+  else if (name === 'bells') layers.bells = buildScheduled(c, master, bellScore)
 }
 
 function stopLayer(name) {
-  const layer = activeLayers[name]
+  const layer = layers[name]
   if (!layer) return
-  if (layer.scheduler) clearInterval(layer.scheduler)
-  requestTokens[name] = (requestTokens[name] ?? 0) + 1
-  const master = masters[name]
   const c = getContext()
-  if (master && c) {
-    const now = c.currentTime
-    master.gain.cancelScheduledValues(now)
-    master.gain.setValueAtTime(master.gain.value, now)
-    master.gain.linearRampToValueAtTime(0, now + FADE_OUT)
-  }
-  delete activeLayers[name]
+  if (!c) return
+  const now = c.currentTime
+  layer.master.gain.cancelScheduledValues(now)
+  layer.master.gain.setValueAtTime(layer.master.gain.value, now)
+  layer.master.gain.linearRampToValueAtTime(0, now + FADE_OUT)
+  layers[name] = null
+  if (layer.scheduler) clearInterval(layer.scheduler)
+  setTimeout(() => {
+    try {
+      layer.nodes?.forEach(({ osc, lfo }) => { osc.stop(); lfo?.stop() })
+      layer.master.disconnect()
+    } catch {
+      // already stopped
+    }
+  }, FADE_OUT * 1000 + 200)
 }
+
+function buildDrone(c, master, now) {
+  const voices = [
+    { freq: 65.41, detune: 0, lfoRate: 0.07 },   // C2
+    { freq: 98.00, detune: -4, lfoRate: 0.11 },  // G2
+    { freq: 155.56, detune: 3, lfoRate: 0.13 },  // Eb3
+    { freq: 261.63, detune: -2, lfoRate: 0.09 }, // C4
+  ]
+  const nodes = voices.map(({ freq, detune, lfoRate }) => {
+    const osc = c.createOscillator()
+    const gain = c.createGain()
+    osc.type = 'sine'
+    osc.frequency.value = freq
+    osc.detune.value = detune
+    gain.gain.value = 0.5
+    const lfo = c.createOscillator()
+    const lfoDepth = c.createGain()
+    lfo.frequency.value = lfoRate
+    lfoDepth.gain.value = 0.3
+    lfo.connect(lfoDepth).connect(gain.gain)
+    lfo.start(now)
+    osc.connect(gain).connect(master)
+    osc.start(now)
+    return { osc, lfo }
+  })
+  return { master, nodes }
+}
+
+function buildBreath(c, master, now) {
+  // Detuned triangle stack a fifth above the drone — sustained pad with tremolo
+  const voices = [
+    { freq: 392.00, detune: 0 },   // G4
+    { freq: 392.00, detune: 8 },
+    { freq: 466.16, detune: -3 },  // Bb4
+    { freq: 622.25, detune: 5 },   // Eb5
+  ]
+  const tremolo = c.createOscillator()
+  const tremoloDepth = c.createGain()
+  tremolo.frequency.value = 3.5
+  tremoloDepth.gain.value = 0.15
+  tremolo.start(now)
+
+  const nodes = voices.map(({ freq, detune }) => {
+    const osc = c.createOscillator()
+    const gain = c.createGain()
+    osc.type = 'triangle'
+    osc.frequency.value = freq
+    osc.detune.value = detune
+    gain.gain.value = 0.4
+    tremolo.connect(tremoloDepth).connect(gain.gain)
+    osc.connect(gain).connect(master)
+    osc.start(now)
+    return { osc, lfo: tremolo }
+  })
+  // Make sure tremolo is stopped only once
+  return { master, nodes: [{ osc: tremolo }, ...nodes] }
+}
+
+// ─── Note scheduling ────────────────────────────────────────────────────────
+// Each scored layer has a list of (offsetBeats, freq) events on a 16-beat loop
+// at 60 BPM (1 beat = 1 second). The scheduler looks 100ms ahead.
+
+const LOOP_BEATS = 16
+const BEAT = 1.0
+const LOOKAHEAD = 0.1
+const TICK_MS = 50
+
+const pluckScore = {
+  loopBeats: LOOP_BEATS,
+  events: [
+    // C minor descending arpeggio with returning low C
+    { beat: 0, freq: 130.81 },   // C3
+    { beat: 1, freq: 196.00 },   // G3
+    { beat: 2, freq: 233.08 },   // Bb3
+    { beat: 3, freq: 196.00 },   // G3
+    { beat: 4, freq: 311.13 },   // Eb4
+    { beat: 5, freq: 196.00 },   // G3
+    { beat: 6, freq: 233.08 },   // Bb3
+    { beat: 7, freq: 196.00 },   // G3
+    { beat: 8, freq: 130.81 },   // C3
+    { beat: 9, freq: 196.00 },   // G3
+    { beat: 10, freq: 311.13 },  // Eb4
+    { beat: 11, freq: 196.00 },  // G3
+    { beat: 12, freq: 233.08 },  // Bb3
+    { beat: 13, freq: 311.13 },  // Eb4
+    { beat: 14, freq: 392.00 },  // G4
+    { beat: 15, freq: 311.13 },  // Eb4
+  ],
+  play(c, master, time, freq) {
+    const osc = c.createOscillator()
+    const gain = c.createGain()
+    osc.type = 'triangle'
+    osc.frequency.value = freq
+    gain.gain.setValueAtTime(0, time)
+    gain.gain.linearRampToValueAtTime(0.7, time + 0.005)
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.45)
+    osc.connect(gain).connect(master)
+    osc.start(time)
+    osc.stop(time + 0.5)
+  },
+}
+
+const bellScore = {
+  loopBeats: LOOP_BEATS,
+  events: [
+    // Sparse, melancholic high melody
+    { beat: 0, freq: 523.25 },    // C5
+    { beat: 4, freq: 783.99 },    // G5
+    { beat: 6, freq: 622.25 },    // Eb5
+    { beat: 10, freq: 932.33 },   // Bb5
+    { beat: 12, freq: 783.99 },   // G5
+    { beat: 14, freq: 622.25 },   // Eb5
+  ],
+  play(c, master, time, freq) {
+    // Bell: sine + 2x harmonic, fast attack, long decay
+    const gain = c.createGain()
+    gain.gain.setValueAtTime(0, time)
+    gain.gain.linearRampToValueAtTime(0.6, time + 0.008)
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 1.6)
+    gain.connect(master)
+
+    const fund = c.createOscillator()
+    fund.type = 'sine'
+    fund.frequency.value = freq
+    fund.connect(gain)
+    fund.start(time)
+    fund.stop(time + 1.7)
+
+    const harm = c.createOscillator()
+    harm.type = 'sine'
+    harm.frequency.value = freq * 2
+    const harmGain = c.createGain()
+    harmGain.gain.setValueAtTime(0, time)
+    harmGain.gain.linearRampToValueAtTime(0.25, time + 0.008)
+    harmGain.gain.exponentialRampToValueAtTime(0.001, time + 1.0)
+    harm.connect(harmGain).connect(master)
+    harm.start(time)
+    harm.stop(time + 1.1)
+  },
+}
+
+function buildScheduled(c, master, score) {
+  const startTime = c.currentTime
+  let nextBeatIndex = 0
+
+  const tick = () => {
+    const horizon = c.currentTime + LOOKAHEAD
+    while (true) {
+      const loop = Math.floor(nextBeatIndex / score.events.length)
+      const ev = score.events[nextBeatIndex % score.events.length]
+      const beatPos = loop * score.loopBeats + ev.beat
+      const t = startTime + beatPos * BEAT
+      if (t > horizon) break
+      if (t >= c.currentTime - 0.05) score.play(c, master, t, ev.freq)
+      nextBeatIndex++
+    }
+  }
+
+  // Prime once immediately so notes near startTime get scheduled
+  tick()
+  const scheduler = setInterval(tick, TICK_MS)
+  return { master, scheduler, nodes: [] }
+}
+
+// ─── Public API ─────────────────────────────────────────────────────────────
+
+let lastProgress = 0
+let musicActive = false
 
 export function setMusicProgress(progress) {
   lastProgress = Math.min(1, Math.max(0, progress))
@@ -378,8 +336,7 @@ export function setMusicProgress(progress) {
 export function setMusicActive(active) {
   musicActive = active
   if (!active) {
-    Object.keys(INSTRUMENT_GM).forEach((name) => stopLayer(name))
-    globalStartTime = null
+    Object.keys(layers).forEach((name) => stopLayer(name))
     return
   }
   apply()
@@ -387,15 +344,18 @@ export function setMusicActive(active) {
 
 function apply() {
   if (!isSoundEnabled()) {
-    Object.keys(INSTRUMENT_GM).forEach((name) => stopLayer(name))
-    globalStartTime = null
+    Object.keys(layers).forEach((name) => stopLayer(name))
     return
   }
-  for (const [name, threshold] of Object.entries(THRESHOLDS)) {
-    if (lastProgress >= threshold) {
-      if (!activeLayers[name]) startLayer(name)
-    } else if (activeLayers[name]) {
-      stopLayer(name)
-    }
-  }
+  // Drone whenever music is active
+  if (!layers.drone) startLayer('drone')
+  // Plucks at 25%
+  if (lastProgress >= 0.25) { if (!layers.plucks) startLayer('plucks') }
+  else if (layers.plucks) stopLayer('plucks')
+  // Breath at 50%
+  if (lastProgress >= 0.5) { if (!layers.breath) startLayer('breath') }
+  else if (layers.breath) stopLayer('breath')
+  // Bells at 75%
+  if (lastProgress >= 0.75) { if (!layers.bells) startLayer('bells') }
+  else if (layers.bells) stopLayer('bells')
 }

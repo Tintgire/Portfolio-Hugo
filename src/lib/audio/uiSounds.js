@@ -1,4 +1,5 @@
 const STORAGE_KEY = 'portfolio-sound-enabled'
+const SOUND_CHANGE_EVENT = 'portfolio:sound-enabled-change'
 
 let ctx = null
 function getContext() {
@@ -14,7 +15,7 @@ export function isSoundEnabled() {
   if (typeof window === 'undefined') return false
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false
   try {
-    return window.localStorage.getItem(STORAGE_KEY) === 'true'
+    return window.sessionStorage.getItem(STORAGE_KEY) === 'true'
   } catch {
     return false
   }
@@ -23,7 +24,12 @@ export function isSoundEnabled() {
 export function setSoundEnabled(enabled) {
   if (typeof window === 'undefined') return
   try {
-    window.localStorage.setItem(STORAGE_KEY, enabled ? 'true' : 'false')
+    window.sessionStorage.setItem(STORAGE_KEY, enabled ? 'true' : 'false')
+  } catch {
+    // ignore
+  }
+  try {
+    window.dispatchEvent(new CustomEvent(SOUND_CHANGE_EVENT, { detail: { enabled } }))
   } catch {
     // ignore
   }

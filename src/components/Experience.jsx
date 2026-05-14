@@ -166,13 +166,23 @@ function TimelineNode({ experience }) {
   )
 }
 
+// Per-row particle config: text shape rendered behind the row in the empty
+// half opposite the card. Cards without an entry here render no particles.
+const PARTICLE_SHAPES = {
+  0: '{ }',  // Deltyo — Full-Stack
+  1: 'SEO',  // Google — Certification SEO
+  2: '</>',  // OpenClassrooms — Formation web
+}
+
 function TimelineRow({ experience, index }) {
   const isLeft = index % 2 === 0
-  const showParticles = index === 0 // Deltyo only for now
+  const shape = PARTICLE_SHAPES[index]
+  // Card on left → particles on right · Card on right → particles on left
+  const particlesSide = isLeft ? 'right' : 'left'
 
   return (
     <div className="relative grid grid-cols-1 lg:grid-cols-[1fr_140px_1fr] gap-6 lg:gap-10 items-stretch">
-      {showParticles && (
+      {shape && (
         // Full-bleed canvas behind everything: spans the full viewport width,
         // matches the row height (= card height via items-stretch). z-0 so the
         // card (z-10) covers the middle, particles only show in the empty
@@ -182,7 +192,7 @@ function TimelineRow({ experience, index }) {
           className="hidden lg:block absolute top-0 bottom-0 z-0 pointer-events-none"
           style={{ left: 'calc(50% - 50vw)', width: '100vw' }}
         >
-          <ParticleShapeField2D />
+          <ParticleShapeField2D shape={shape} side={particlesSide} />
         </div>
       )}
       <div className={`relative z-10 ${isLeft ? 'lg:col-start-1' : 'lg:col-start-3'}`}>

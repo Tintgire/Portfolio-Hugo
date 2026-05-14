@@ -6,24 +6,41 @@ const PALETTE = [
   [236, 72, 153],   // #ec4899
 ]
 
-// Sample the silhouette of "{ }" rendered via a real monospace font (the
-// codebase's font stack: JetBrains Mono → Menlo → Consolas → generic
-// monospace). Font ratio is held at 0.78 of canvas height — agressive enough
-// to give the braces presence, but conservative enough to keep both top and
-// bottom curls fully inside the canvas (an earlier 0.95 ratio was clipping
-// the bottom on the Consolas fallback).
-function sampleShapeOffsets(w, h) {
+const FONT_STACK = '"JetBrains Mono", "Menlo", "Consolas", monospace'
+
+// Sample the silhouette of an arbitrary text string rendered via the
+// codebase's monospace font stack. Two paths:
+//   - "{ }"  → render `{` and `}` as two separate fillText calls at
+//     calibrated positions (w*0.36 and w*0.64). The single-string approach
+//     can't fit at the chosen ratio because monospace `{ }` occupies 3 cells.
+//   - any other text → single centered fillText with auto-fit: starts at
+//     0.78×h, scales the font down if measureText reports the string
+//     wider than 85% of the canvas. Keeps a few px of side padding.
+function sampleShapeOffsets(w, h, shape) {
   const c = document.createElement('canvas')
   c.width = w
   c.height = h
   const ctx = c.getContext('2d')
   ctx.fillStyle = '#fff'
-  const size = Math.floor(h * 0.78)
-  ctx.font = `900 ${size}px "JetBrains Mono", "Menlo", "Consolas", monospace`
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
-  ctx.fillText('{', w * 0.36, h / 2)
-  ctx.fillText('}', w * 0.64, h / 2)
+
+  if (shape === '{ }') {
+    const size = Math.floor(h * 0.78)
+    ctx.font = `900 ${size}px ${FONT_STACK}`
+    ctx.fillText('{', w * 0.36, h / 2)
+    ctx.fillText('}', w * 0.64, h / 2)
+  } else {
+    let size = Math.floor(h * 0.78)
+    ctx.font = `900 ${size}px ${FONT_STACK}`
+    const maxW = w * 0.85
+    const measured = ctx.measureText(shape).width
+    if (measured > maxW) {
+      size = Math.floor(size * (maxW / measured))
+      ctx.font = `900 ${size}px ${FONT_STACK}`
+    }
+    ctx.fillText(shape, w / 2, h / 2)
+  }
 
   const data = ctx.getImageData(0, 0, w, h).data
   const offsets = []
@@ -37,7 +54,7 @@ function sampleShapeOffsets(w, h) {
   return offsets
 }
 
-export default function ParticleShapeField2D({ count = 1400 }) {
+export default function ParticleShapeField2D({ count = 1400, shape = '{ }', side = 'right' }) {
   const canvasRef = useRef(null)
 
   useEffect(() => {
@@ -54,7 +71,7 @@ export default function ParticleShapeField2D({ count = 1400 }) {
     let particles = []
     let shapeW = 240
     let shapeH = 240
-    let offsets = sampleShapeOffsets(shapeW, shapeH)
+    let offsets = sampleShapeOffsets(shapeW, shapeH, shape)
 
     const initParticles = () => {
       particles = []
@@ -96,7 +113,7 @@ export default function ParticleShapeField2D({ count = 1400 }) {
       // edge clipping. Width must comfortably fit two braces side-by-side.
       shapeW = Math.min(360, w * 0.8)
       shapeH = Math.min(320, h * 0.7)
-      offsets = sampleShapeOffsets(shapeW, shapeH)
+      offsets = sampleShapeOffsets(shapeW, shapeH, shape)
       initParticles()
       return true
     }
@@ -120,21 +137,15 @@ export default function ParticleShapeField2D({ count = 1400 }) {
     let visible = true
     const start = performance.now()
 
-    // Shape confinement zone: right portion of the canvas (the Deltyo card
-    // sits on the left third — `lg:col-start-1` in the parent's
-    // 1fr_140px_1fr grid). The cursor activates the shape from anywhere on
-    // the canvas, but the {} center is clamped inside this box so it never
-    // drifts onto/over the card.
-    // Box centered on the middle of the right half of the canvas (=75% of the
-    // viewport width) with a tight 16% horizontal span. Vertically centered
-    // on the card height (canvas height === card height via items-stretch in
-    // the parent grid) with a tight 30% band.
-    const getBox = () => ({
-      xMin: w * 0.67,
-      xMax: w * 0.83,
-      yMin: h * 0.35,
-      yMax: h * 0.65,
-    })
+    // Shape confinement zone: the empty viewport-half OPPOSITE the card.
+    // For odd-indexed timeline rows the card is on the right and the
+    // particles render on the LEFT (centered around 25% of viewport
+    // width); for even-indexed rows the card is on the left, particles
+    // on the RIGHT (centered around 75%). Both modes share the same
+    // tight 16% horizontal span and centered 30% vertical band.
+    const getBox = () => side === 'left'
+      ? { xMin: w * 0.17, xMax: w * 0.33, yMin: h * 0.35, yMax: h * 0.65 }
+      : { xMin: w * 0.67, xMax: w * 0.83, yMin: h * 0.35, yMax: h * 0.65 }
 
     // Track mouse via window — the canvas itself is pointer-events: none so it
     // doesn't block clicks on cards above it. Hover ON anywhere on the canvas.
@@ -217,7 +228,7 @@ export default function ParticleShapeField2D({ count = 1400 }) {
       window.removeEventListener('mousemove', onMove)
       if (raf) cancelAnimationFrame(raf)
     }
-  }, [count])
+  }, [count, shape, side])
 
   return (
     <canvas

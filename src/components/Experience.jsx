@@ -170,22 +170,6 @@ function RailFill({ scrollYProgress }) {
             '0 0 6px rgba(145, 94, 255, 0.4), 0 0 14px rgba(236, 72, 153, 0.2)',
         }}
       />
-      {/* Head — bright pink dot at the leading edge of the fill */}
-      <motion.div
-        className="absolute"
-        style={{
-          top: height,
-          left: '50%',
-          x: '-50%',
-          y: '-50%',
-          width: '10px',
-          height: '10px',
-          borderRadius: '9999px',
-          background: '#ec4899',
-          boxShadow:
-            '0 0 8px #ec4899, 0 0 18px rgba(236, 72, 153, 0.6), 0 0 32px rgba(145, 94, 255, 0.4)',
-        }}
-      />
     </div>
   )
 }

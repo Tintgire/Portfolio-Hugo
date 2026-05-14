@@ -167,11 +167,15 @@ function TimelineNode({ experience }) {
 }
 
 // Per-row particle config: text shape rendered behind the row in the empty
-// half opposite the card. Cards without an entry here render no particles.
+// half opposite the card.
 const PARTICLE_SHAPES = {
   0: '{ }',  // Deltyo — Full-Stack
   1: 'SEO',  // Google — Certification SEO
   2: '</>',  // OpenClassrooms — Formation web
+  3: '+7%',  // Del Arte — Adjoint Directeur (CA growth)
+  4: '1★',   // Le Lièvre Gourmand — 1 étoile Michelin
+  5: '$_',   // The Hacking Project — Bootcamp (shell prompt)
+  6: '42',   // 42 — La Piscine
 }
 
 function TimelineRow({ experience, index }) {

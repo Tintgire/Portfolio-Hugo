@@ -138,8 +138,8 @@ const experiences = [
     company_name: 'FreshStock',
     context: 'B2B inventaire restauration vocale + IA · iOS / Android / web',
     icon: freshstock,
-    iconBg: '#10B981',
-    date: '2025 — Présent',
+    iconBg: '#064E3B',
+    date: '2026',
     challenge: `Réinventer l'inventaire en restauration : remplacer les 2 h de comptage Excel manuel par une app qui comprend la voix, lit le visuel, et calcule le stock en temps réel.`,
     actionsLabel: 'Architecture & stack',
     points: [
@@ -157,8 +157,8 @@ const experiences = [
     company_name: 'Valofenua',
     context: `Plateforme d'estimation immobilière · marché polynésien`,
     icon: valofenua,
-    iconBg: '#0EA5E9',
-    date: '2024 — 2025',
+    iconBg: '#0C4A6E',
+    date: '2024 — 2026',
     challenge: `Bâtir une plateforme d'estimation de prix immobilier pour la Polynésie française : collecte automatisée des annonces, agent IA pour l'estimation, génération de rapports PDF.`,
     actionsLabel: 'Réalisations',
     points: [
@@ -177,7 +177,7 @@ const experiences = [
     context: 'Sites sur-mesure pour artisans, créatifs, marques personnelles',
     initials: 'FL',
     iconBg: '#A855F7',
-    date: '2025 — Présent',
+    date: '2025',
     challenge: `Livrer des sites web sur-mesure à des clients variés — du portfolio éditorial brutaliste au site vitrine artisanal classique.`,
     keyProjects: [
       { name: 'Lou Studio', description: `Portfolio brutaliste pour makeup artist parisienne · Next.js 16 + React 19 + Three.js + GSAP. Direction cinématique, scroll piloté, 3D custom, bilingue FR/EN.` },

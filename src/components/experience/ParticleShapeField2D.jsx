@@ -58,8 +58,16 @@ export default function ParticleShapeField2D({ count = 1400 }) {
 
     const initParticles = () => {
       particles = []
+      const N = offsets.length
       for (let i = 0; i < count; i++) {
-        const o = offsets.length > 0 ? offsets[i % offsets.length] : [0, 0]
+        // Distribute particles UNIFORMLY across the offsets array. The
+        // offsets are sampled top-to-bottom, so naive `i % N` (when count <
+        // N, which is the common case: count=1400 vs N≈3700 for {}) would
+        // assign all particles to the top half of the shape and leave the
+        // bottom half empty. Stride-sampling ensures every part of the {}
+        // gets particles.
+        const idx = N > 0 ? Math.floor((i / count) * N) % N : 0
+        const o = N > 0 ? offsets[idx] : [0, 0]
         const c = PALETTE[Math.floor(Math.random() * PALETTE.length)]
         particles.push({
           ox: Math.random() * w,           // origin

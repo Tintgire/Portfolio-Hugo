@@ -1,9 +1,10 @@
-import React, { useEffect, useRef } from 'react'
-import { motion } from 'framer-motion'
+import React, { useEffect, useRef, useState } from 'react'
+import { motion, useTransform } from 'framer-motion'
 
 import { experiences } from '../constans'
 import { SectionWrapper } from '../hoc'
 import { playTick } from '../lib/audio/uiSounds'
+import useScrollProgress from '../lib/useScrollProgress'
 
 import { styles } from '../styles'
 import ParticleShapeField2D from './experience/ParticleShapeField2D'
@@ -141,13 +142,99 @@ function ExperienceCard({ experience }) {
   )
 }
 
-function TimelineNode({ experience }) {
+// Vertical rail with a base track + gradient fill that grows with scroll
+// progress through the timeline. A glowing head sits at the bottom of the
+// fill — the "you are here" marker that drags down as the user scrolls.
+function RailFill({ scrollYProgress }) {
+  const height = useTransform(scrollYProgress, [0, 1], ['0%', '100%'])
+
+  return (
+    <div
+      aria-hidden="true"
+      className="hidden lg:block absolute left-1/2 top-0 bottom-0 -translate-x-1/2 pointer-events-none z-[1]"
+      style={{ width: '2px' }}
+    >
+      {/* Base track — very faint so it never competes with the particles */}
+      <div
+        className="absolute inset-0 rounded-full"
+        style={{ background: 'rgba(255, 255, 255, 0.06)' }}
+      />
+      {/* Filled portion — gradient from violet to lavender to pink */}
+      <motion.div
+        className="absolute left-0 right-0 top-0 rounded-full"
+        style={{
+          height,
+          background:
+            'linear-gradient(to bottom, transparent 0%, rgba(145, 94, 255, 0.7) 15%, rgba(192, 132, 252, 0.9) 50%, rgba(236, 72, 153, 0.7) 85%, rgba(236, 72, 153, 0.95) 100%)',
+          boxShadow:
+            '0 0 6px rgba(145, 94, 255, 0.4), 0 0 14px rgba(236, 72, 153, 0.2)',
+        }}
+      />
+      {/* Head — bright pink dot at the leading edge of the fill */}
+      <motion.div
+        className="absolute"
+        style={{
+          top: height,
+          left: '50%',
+          x: '-50%',
+          y: '-50%',
+          width: '10px',
+          height: '10px',
+          borderRadius: '9999px',
+          background: '#ec4899',
+          boxShadow:
+            '0 0 8px #ec4899, 0 0 18px rgba(236, 72, 153, 0.6), 0 0 32px rgba(145, 94, 255, 0.4)',
+        }}
+      />
+    </div>
+  )
+}
+
+function TimelineNode({ experience, scrollYProgress, timelineRef }) {
+  const wrapperRef = useRef(null)
+  const [isActive, setIsActive] = useState(false)
   const hasIcon = !!experience.icon
+
+  useEffect(() => {
+    if (!wrapperRef.current || !timelineRef?.current || !scrollYProgress) return
+
+    let nodeRelY = 0
+    const compute = () => {
+      const containerRect = timelineRef.current.getBoundingClientRect()
+      const nodeRect = wrapperRef.current.getBoundingClientRect()
+      if (containerRect.height === 0) return
+      const nodeCenter = nodeRect.top + nodeRect.height / 2 - containerRect.top
+      nodeRelY = nodeCenter / containerRect.height
+    }
+    compute()
+
+    // Light up the node as soon as the rail head crosses its vertical center.
+    const unsubscribe = scrollYProgress.on('change', (p) => {
+      setIsActive(p >= nodeRelY)
+    })
+    setIsActive(scrollYProgress.get() >= nodeRelY)
+
+    const onResize = () => compute()
+    window.addEventListener('resize', onResize)
+    return () => {
+      unsubscribe()
+      window.removeEventListener('resize', onResize)
+    }
+  }, [scrollYProgress, timelineRef])
+
   return (
     <div className="flex flex-col items-center pt-8">
-      <div
-        className="w-12 h-12 rounded-full flex items-center justify-center text-white font-black text-base shadow-[0_0_0_4px_#1d1836]"
-        style={{ background: experience.iconBg ?? '#915EFF' }}
+      <motion.div
+        ref={wrapperRef}
+        animate={{ scale: isActive ? 1.08 : 1 }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        className="w-12 h-12 rounded-full flex items-center justify-center text-white font-black text-base transition-[box-shadow] duration-500"
+        style={{
+          background: experience.iconBg ?? '#915EFF',
+          boxShadow: isActive
+            ? '0 0 0 4px #1d1836, 0 0 0 6px rgba(236, 72, 153, 0.45), 0 0 24px rgba(236, 72, 153, 0.55)'
+            : '0 0 0 4px #1d1836',
+        }}
       >
         {hasIcon ? (
           <img
@@ -158,7 +245,7 @@ function TimelineNode({ experience }) {
         ) : (
           experience.initials
         )}
-      </div>
+      </motion.div>
       <p className="mt-3 text-[11px] uppercase tracking-[0.2em] text-white/55 whitespace-nowrap font-bold text-center">
         {experience.date}
       </p>
@@ -178,7 +265,7 @@ const PARTICLE_SHAPES = {
   6: '42',   // 42 — La Piscine
 }
 
-function TimelineRow({ experience, index }) {
+function TimelineRow({ experience, index, scrollYProgress, timelineRef }) {
   const isLeft = index % 2 === 0
   const shape = PARTICLE_SHAPES[index]
   // Card on left → particles on right · Card on right → particles on left
@@ -203,13 +290,25 @@ function TimelineRow({ experience, index }) {
         <ExperienceCard experience={experience} />
       </div>
       <div className="hidden lg:block lg:col-start-2 lg:row-start-1 relative z-10">
-        <TimelineNode experience={experience} />
+        <TimelineNode
+          experience={experience}
+          scrollYProgress={scrollYProgress}
+          timelineRef={timelineRef}
+        />
       </div>
     </div>
   )
 }
 
 const Experience = () => {
+  const timelineRef = useRef(null)
+  // Lenis-aware scroll progress (framer-motion's useScroll relies on native
+  // scroll events, which Lenis swallows). progress = 0 when timeline top
+  // crosses viewport center, 1 when bottom crosses it. The rail head and
+  // node-activation thresholds derive from this single MotionValue, so
+  // everything stays perfectly in sync.
+  const scrollYProgress = useScrollProgress(timelineRef)
+
   return (
     <>
       <motion.div
@@ -222,16 +321,18 @@ const Experience = () => {
         <h2 className={styles.sectionHeadText}>Expérience professionnelle</h2>
       </motion.div>
 
-      <div className="relative mt-16">
-        {/* Center vertical rail — desktop only */}
-        <div
-          aria-hidden="true"
-          className="hidden lg:block absolute left-1/2 top-0 bottom-0 -translate-x-1/2 w-px bg-gradient-to-b from-transparent via-purple-500/40 to-transparent pointer-events-none z-[1]"
-        />
+      <div ref={timelineRef} className="relative mt-16">
+        <RailFill scrollYProgress={scrollYProgress} />
 
         <div className="relative z-10 space-y-10 lg:space-y-16">
           {experiences.map((exp, i) => (
-            <TimelineRow key={i} experience={exp} index={i} />
+            <TimelineRow
+              key={i}
+              experience={exp}
+              index={i}
+              scrollYProgress={scrollYProgress}
+              timelineRef={timelineRef}
+            />
           ))}
         </div>
       </div>

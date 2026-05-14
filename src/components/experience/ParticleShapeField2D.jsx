@@ -103,10 +103,11 @@ export default function ParticleShapeField2D({ count = 1400 }) {
     let visible = true
     const start = performance.now()
 
-    // Active zone: right portion of the canvas (the Deltyo card sits on the
-    // left third — `lg:col-start-1` in the parent's 1fr_140px_1fr grid). The
-    // shape only forms when the cursor enters this box, and is clamped inside
-    // it so it never drifts onto/over the card.
+    // Shape confinement zone: right portion of the canvas (the Deltyo card
+    // sits on the left third — `lg:col-start-1` in the parent's
+    // 1fr_140px_1fr grid). The cursor activates the shape from anywhere on
+    // the canvas, but the {} center is clamped inside this box so it never
+    // drifts onto/over the card.
     const getBox = () => ({
       xMin: w * 0.55,
       xMax: w * 0.92,
@@ -115,16 +116,12 @@ export default function ParticleShapeField2D({ count = 1400 }) {
     })
 
     // Track mouse via window — the canvas itself is pointer-events: none so it
-    // doesn't block clicks on cards above it. Hover ON only inside the box.
+    // doesn't block clicks on cards above it. Hover ON anywhere on the canvas.
     const onMove = (e) => {
       const r = canvas.getBoundingClientRect()
       mouseX = e.clientX - r.left
       mouseY = e.clientY - r.top
-      const b = getBox()
-      const inBox =
-        mouseX >= b.xMin && mouseX <= b.xMax &&
-        mouseY >= b.yMin && mouseY <= b.yMax
-      hoverTarget = inBox ? 1 : 0
+      hoverTarget = (mouseX >= 0 && mouseX <= r.width && mouseY >= 0 && mouseY <= r.height) ? 1 : 0
     }
     const onLeaveDoc = () => { hoverTarget = 0 }
     window.addEventListener('mousemove', onMove)

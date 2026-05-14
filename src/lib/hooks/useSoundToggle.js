@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { isSoundEnabled, setSoundEnabled } from '../audio/uiSounds'
+import { isSoundEnabled, setSoundEnabled, playToggle } from '../audio/uiSounds'
 
 export function useSoundToggle() {
   const [enabled, setEnabled] = useState(false)
@@ -12,6 +12,7 @@ export function useSoundToggle() {
     setEnabled((prev) => {
       const next = !prev
       setSoundEnabled(next)
+      if (next) playToggle()
       return next
     })
   }, [])

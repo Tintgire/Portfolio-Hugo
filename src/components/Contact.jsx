@@ -6,6 +6,7 @@ import { styles } from '../styles'
 import { EarthCanvas } from './canvas'
 import { SectionWrapper } from '../hoc'
 import { slideIn } from '../utils/motion'
+import { playSubmit } from '../lib/audio/uiSounds'
 
 const Contact = () => {
   const formRef = useRef()
@@ -41,6 +42,7 @@ const Contact = () => {
       .then(
         () => {
           setLoading(false)
+          playSubmit()
           alert('Merci pour le message😎😎')
 
           setForm({

@@ -10,6 +10,7 @@ import { projects } from '../constans'
 import { fadeIn, textVariant } from '../utils/motion'
 import FeaturedProject from './works/FeaturedProject'
 import ProjectDrawer from './works/ProjectDrawer'
+import { playClick } from '../lib/audio/uiSounds'
 
 const ProjectCard = ({
   index,
@@ -32,10 +33,14 @@ const ProjectCard = ({
           role="button"
           tabIndex={0}
           aria-label={`Voir le détail du projet ${name}`}
-          onClick={() => onOpen?.(id)}
+          onClick={() => {
+            playClick()
+            onOpen?.(id)
+          }}
           onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {
               e.preventDefault()
+              playClick()
               onOpen?.(id)
             }
           }}

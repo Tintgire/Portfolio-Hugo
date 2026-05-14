@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import DrawerGallery from './DrawerGallery'
 import { useLenis } from '../../lib/LenisProvider'
+import { playDrawerOpen, playDrawerClose } from '../../lib/audio/uiSounds'
 
 export default function ProjectDrawer({ project, onClose }) {
   const closeBtnRef = useRef(null)
@@ -10,11 +11,16 @@ export default function ProjectDrawer({ project, onClose }) {
   useEffect(() => {
     if (!project) return
 
+    playDrawerOpen()
+
     const previouslyFocused = document.activeElement
     closeBtnRef.current?.focus()
 
     const onKey = (e) => {
-      if (e.key === 'Escape') onClose()
+      if (e.key === 'Escape') {
+        playDrawerClose()
+        onClose()
+      }
     }
     document.addEventListener('keydown', onKey)
 
@@ -32,6 +38,11 @@ export default function ProjectDrawer({ project, onClose }) {
     }
   }, [project, onClose, lenis])
 
+  const handleClose = () => {
+    playDrawerClose()
+    onClose()
+  }
+
   return (
     <AnimatePresence>
       {project && (
@@ -42,7 +53,7 @@ export default function ProjectDrawer({ project, onClose }) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
-            onClick={onClose}
+            onClick={handleClose}
             className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
             aria-hidden="true"
           />
@@ -65,7 +76,7 @@ export default function ProjectDrawer({ project, onClose }) {
               <button
                 ref={closeBtnRef}
                 type="button"
-                onClick={onClose}
+                onClick={handleClose}
                 aria-label="Fermer le détail du projet"
                 className="w-9 h-9 rounded-full border border-white/15 bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors"
               >

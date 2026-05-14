@@ -107,6 +107,7 @@ export default function ProjectDrawer({ project, onClose }) {
                 images={project.images}
                 imagePositions={project.imagePositions}
                 alt={project.name}
+                orientation={project.type === 'mobile' ? 'portrait' : 'landscape'}
               />
 
               {project.longDescription && (

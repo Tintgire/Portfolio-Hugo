@@ -6,8 +6,7 @@ import { SectionWrapper } from '../hoc'
 import { playTick } from '../lib/audio/uiSounds'
 
 import { styles } from '../styles'
-import TimelineParticles from './experience/TimelineParticles'
-import ParticleShapeField from './experience/ParticleShapeField'
+import ExperienceParticlesBackground from './experience/ExperienceParticlesBackground'
 
 const Section = ({ label, children }) => (
   <div className="mt-4">
@@ -172,39 +171,12 @@ function TimelineRow({ experience, index }) {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[1fr_140px_1fr] gap-6 lg:gap-10 items-start">
-      {isLeft ? (
-        <>
-          <div className="lg:col-start-1">
-            <ExperienceCard experience={experience} />
-          </div>
-          <div className="hidden lg:block lg:col-start-2">
-            <TimelineNode experience={experience} />
-          </div>
-          <div className="hidden lg:flex lg:col-start-3 items-center justify-center min-h-[280px]">
-            {index === 0 ? (
-              <ParticleShapeField height={280} />
-            ) : (
-              <TimelineParticles pattern={index} height={280} />
-            )}
-          </div>
-        </>
-      ) : (
-        <>
-          <div className="hidden lg:flex lg:col-start-1 items-center justify-center min-h-[280px]">
-            {index === 0 ? (
-              <ParticleShapeField height={280} />
-            ) : (
-              <TimelineParticles pattern={index} height={280} />
-            )}
-          </div>
-          <div className="hidden lg:block lg:col-start-2">
-            <TimelineNode experience={experience} />
-          </div>
-          <div className="lg:col-start-3">
-            <ExperienceCard experience={experience} />
-          </div>
-        </>
-      )}
+      <div className={isLeft ? 'lg:col-start-1' : 'lg:col-start-3'}>
+        <ExperienceCard experience={experience} />
+      </div>
+      <div className="hidden lg:block lg:col-start-2 lg:row-start-1">
+        <TimelineNode experience={experience} />
+      </div>
     </div>
   )
 }
@@ -223,13 +195,17 @@ const Experience = () => {
       </motion.div>
 
       <div className="relative mt-16">
+        {/* Single full-width WebGL canvas behind everything — particles show in
+            empty columns, hidden behind the opaque cards on the populated side */}
+        <ExperienceParticlesBackground />
+
         {/* Center vertical rail — desktop only */}
         <div
           aria-hidden="true"
-          className="hidden lg:block absolute left-1/2 top-0 bottom-0 -translate-x-1/2 w-px bg-gradient-to-b from-transparent via-purple-500/40 to-transparent pointer-events-none"
+          className="hidden lg:block absolute left-1/2 top-0 bottom-0 -translate-x-1/2 w-px bg-gradient-to-b from-transparent via-purple-500/40 to-transparent pointer-events-none z-[1]"
         />
 
-        <div className="space-y-10 lg:space-y-16">
+        <div className="relative z-10 space-y-10 lg:space-y-16">
           {experiences.map((exp, i) => (
             <TimelineRow key={i} experience={exp} index={i} />
           ))}

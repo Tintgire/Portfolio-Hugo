@@ -9,9 +9,15 @@ const PALETTE = [
 // Draw a stylized curly brace using explicit canvas paths so the shape is
 // deterministic regardless of which monospace font the browser falls back
 // to. `opening = true` → "{", `opening = false` → "}".
+//
+// Geometry note: `{` opens to the RIGHT, so its CLOSED side (the outer
+// curls) sits on the LEFT, and its middle tooth pokes RIGHT (toward the
+// content being braced). `}` is mirrored. So:
+//   - `{`: dir = -1  → outer corners at (cx - w, …), pinch tooth at (cx + w*0.55, cy)
+//   - `}`: dir = +1  → outer corners at (cx + w, …), pinch tooth at (cx - w*0.55, cy)
 function drawBrace(ctx, cx, cy, halfH, opening) {
   const w = halfH * 0.55          // horizontal span (curl width)
-  const dir = opening ? 1 : -1    // { curls left, } curls right
+  const dir = opening ? -1 : 1    // { extends LEFT, } extends RIGHT
   const thickness = Math.max(6, halfH * 0.22)
 
   ctx.strokeStyle = '#fff'
@@ -19,13 +25,13 @@ function drawBrace(ctx, cx, cy, halfH, opening) {
   ctx.lineCap = 'round'
   ctx.lineJoin = 'round'
   ctx.beginPath()
-  // Outer top corner
+  // Outer top corner (LEFT for {, RIGHT for })
   ctx.moveTo(cx + dir * w, cy - halfH)
   // Top curl → inward to the vertical bar
   ctx.quadraticCurveTo(cx, cy - halfH, cx, cy - halfH * 0.65)
   // Straight down to just above the mid pinch
   ctx.lineTo(cx, cy - halfH * 0.15)
-  // Pinch: out then back in (the brace's middle "tooth")
+  // Pinch tooth: out (toward content) then back in
   ctx.quadraticCurveTo(cx, cy, cx - dir * w * 0.55, cy)
   ctx.quadraticCurveTo(cx, cy, cx, cy + halfH * 0.15)
   // Straight down to just above the bottom curl

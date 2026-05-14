@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { isSoundEnabled, setSoundEnabled, setMusicActive, playToggle } from '../lib/audio/uiSounds'
-
-const SESSION_KEY = 'portfolio-sound-prompt-dismissed'
+import { setSoundEnabled, setMusicActive, playToggle } from '../lib/audio/uiSounds'
 
 export default function SoundPrompt() {
   const [visible, setVisible] = useState(false)
@@ -11,24 +9,15 @@ export default function SoundPrompt() {
 
   useEffect(() => {
     setMounted(true)
-    // Don't show if user already enabled sound, or already dismissed this session
-    if (isSoundEnabled()) return
-    try {
-      if (window.sessionStorage.getItem(SESSION_KEY) === 'true') return
-    } catch {
-      // ignore
-    }
+    // Always show on every fresh page load — sound is OFF by default and the
+    // user must choose. React state alone keeps the modal from re-appearing
+    // within the current load after dismissal.
     const timer = setTimeout(() => setVisible(true), 1500)
     return () => clearTimeout(timer)
   }, [])
 
   const dismiss = () => {
     setVisible(false)
-    try {
-      window.sessionStorage.setItem(SESSION_KEY, 'true')
-    } catch {
-      // ignore
-    }
   }
 
   const activate = () => {

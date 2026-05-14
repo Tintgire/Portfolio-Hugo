@@ -1,5 +1,7 @@
-const STORAGE_KEY = 'portfolio-sound-enabled'
 const SOUND_CHANGE_EVENT = 'portfolio:sound-enabled-change'
+
+// Sound state lives in module memory — reset on every page reload.
+let soundEnabledState = false
 
 let ctx = null
 function getContext() {
@@ -14,22 +16,14 @@ function getContext() {
 export function isSoundEnabled() {
   if (typeof window === 'undefined') return false
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false
-  try {
-    return window.sessionStorage.getItem(STORAGE_KEY) === 'true'
-  } catch {
-    return false
-  }
+  return soundEnabledState
 }
 
 export function setSoundEnabled(enabled) {
   if (typeof window === 'undefined') return
+  soundEnabledState = !!enabled
   try {
-    window.sessionStorage.setItem(STORAGE_KEY, enabled ? 'true' : 'false')
-  } catch {
-    // ignore
-  }
-  try {
-    window.dispatchEvent(new CustomEvent(SOUND_CHANGE_EVENT, { detail: { enabled } }))
+    window.dispatchEvent(new CustomEvent(SOUND_CHANGE_EVENT, { detail: { enabled: soundEnabledState } }))
   } catch {
     // ignore
   }

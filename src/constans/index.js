@@ -25,6 +25,8 @@ import {
   threejs,
   cv,
   diplome,
+  freshstock,
+  valofenua,
 } from '../assets'
 
 export const navLinks = [
@@ -131,6 +133,59 @@ const technologies = [
 
 const experiences = [
   {
+    type: 'Co-fondateur · Startup',
+    title: 'Co-fondateur & Développeur — FreshStock',
+    company_name: 'FreshStock',
+    context: 'B2B inventaire restauration vocale + IA · iOS / Android / web',
+    icon: freshstock,
+    iconBg: '#10B981',
+    date: '2025 — Présent',
+    challenge: `Réinventer l'inventaire en restauration : remplacer les 2 h de comptage Excel manuel par une app qui comprend la voix, lit le visuel, et calcule le stock en temps réel.`,
+    actionsLabel: 'Architecture & stack',
+    points: [
+      `Backend FastAPI + PostgreSQL + Redis · auth JWT, billing Stripe, mails Resend.`,
+      `App mobile React Native + Expo SDK 54 — mode vocal (Whisper API fr-FR), mode visuel (estimation volumétrique sur bacs Gastronorm EN 631), mode manuel.`,
+      `Site marketing Next.js 15 + React 19 + Tailwind 4 + shadcn.`,
+      `Déploiement Railway · Catalogue seed de 46 produits et 24 contenants normalisés.`,
+    ],
+    results: `MVP en cours — objectif passage de 2 h à 20 min par inventaire.`,
+    stack: ['FastAPI', 'PostgreSQL', 'React Native', 'Expo SDK 54', 'Next.js 15', 'OpenAI Whisper', 'Stripe', 'Railway'],
+  },
+  {
+    type: 'Co-fondateur · Startup',
+    title: 'Co-fondateur & Lead Dev — Valofenua',
+    company_name: 'Valofenua',
+    context: `Plateforme d'estimation immobilière · marché polynésien`,
+    icon: valofenua,
+    iconBg: '#0EA5E9',
+    date: '2024 — 2025',
+    challenge: `Bâtir une plateforme d'estimation de prix immobilier pour la Polynésie française : collecte automatisée des annonces, agent IA pour l'estimation, génération de rapports PDF.`,
+    actionsLabel: 'Réalisations',
+    points: [
+      `Architecture full-stack React 19 + Vite 7 + Supabase (auth & PostgreSQL).`,
+      `Web scraper quotidien collectant 1 300+ annonces automatiquement.`,
+      `Agent IA n8n exploitant la base pour calculer les estimations.`,
+      `Génération PDF côté client (@react-pdf/renderer) avec branding agence.`,
+      `Management de l'équipe dev en collaboration avec le CEO — traduction des choix techniques au business.`,
+    ],
+    stack: ['React 19', 'Vite 7', 'Supabase', 'PostgreSQL', 'n8n', '@react-pdf/renderer', 'Vercel'],
+  },
+  {
+    type: 'Freelance · Web',
+    title: 'Développeur Web Freelance',
+    company_name: 'Indépendant',
+    context: 'Sites sur-mesure pour artisans, créatifs, marques personnelles',
+    initials: 'FL',
+    iconBg: '#A855F7',
+    date: '2025 — Présent',
+    challenge: `Livrer des sites web sur-mesure à des clients variés — du portfolio éditorial brutaliste au site vitrine artisanal classique.`,
+    keyProjects: [
+      { name: 'Lou Studio', description: `Portfolio brutaliste pour makeup artist parisienne · Next.js 16 + React 19 + Three.js + GSAP. Direction cinématique, scroll piloté, 3D custom, bilingue FR/EN.` },
+      { name: 'Olivier Mallet — Menuiserie', description: `Site vitrine pour artisan menuisier · React + Chakra UI + Google Maps + Nodemailer pour le formulaire de contact.` },
+    ],
+    stack: ['Next.js 16', 'React 19', 'Three.js', 'GSAP', 'Tailwind v4', 'Chakra UI', 'Vercel'],
+  },
+  {
     type: 'CDI · Startup',
     title: 'Développeur Full-Stack & Gestion de projet',
     company_name: 'Deltyo',
@@ -203,7 +258,7 @@ const experiences = [
     results: `+7 % de CA par an. Leadership en haute pression, délégation, organisation rigoureuse, progression mesurable des collaborateurs.`,
   },
   {
-    type: 'Restauration étoilée',
+    type: 'CDI · Restauration étoilée',
     title: 'Serveur / Cuisinier — Leader salle',
     company_name: 'Le Lièvre Gourmand',
     context: '1 étoile Michelin',
@@ -277,6 +332,90 @@ const testimonials = [
 ]
 
 const projects = [
+  {
+    id: 'freshstock',
+    name: 'FreshStock',
+    type: 'mobile',
+    featured: true,
+    mockup: 'phones',
+    year: '2026',
+    description: `App B2B qui digitalise l'inventaire en restauration via voix + IA. Whisper, FastAPI, React Native — passer de 2 h de comptage Excel à 20 min en cuisine.`,
+    longDescription: `FreshStock réinvente l'inventaire en restauration. Au lieu des 2 heures de comptage Excel manuel à chaque prise, l'app permet à l'équipe cuisine de dire "5 kilos de boeuf haché" dans la chambre froide — un service NLP (OpenAI Whisper, fr-FR) parse le speech, identifie le produit, et calcule le stock en temps réel. Trois modes coexistent : vocal (le plus rapide), visuel (estimation volumétrique sur bacs Gastronorm normalisés EN 631 via calcul densité × volume), et manuel (saisie classique).
+
+Côté technique, le backend FastAPI 0.115 + Python 3.11 sert une API REST sur PostgreSQL 16 + SQLAlchemy 2 + Alembic, avec Redis 7 pour le rate limiting et le cache, JWT pour l'auth, Stripe pour la facturation, Resend pour les mails transactionnels. L'app mobile React Native + Expo SDK 54 + TanStack Query (avec persistance AsyncStorage) communique avec le backend principal et avec un Supabase secondaire. Le site marketing est en Next.js 15 + React 19 + Tailwind 4 + shadcn. Déploiement Railway via Dockerfile + nixpacks. Catalogue seed de 46 produits et 24 contenants normalisés.
+
+Mon rôle : co-fondateur, architecte technique, dev lead sur les trois surfaces (mobile, web marketing, backend).`,
+    tags: [
+      { name: `React Native`, color: `text-cyan-400 text-gradient` },
+      { name: `FastAPI`, color: `text-emerald-400 text-gradient` },
+      { name: `OpenAI Whisper`, color: `text-green-300 text-gradient` },
+      { name: `PostgreSQL`, color: `text-blue-400 text-gradient` },
+      { name: `Stripe`, color: `text-violet-400 text-gradient` },
+      { name: `Next.js 15`, color: `text-white text-gradient` },
+    ],
+    tech: [
+      'FastAPI', 'Python 3.11', 'PostgreSQL 16', 'SQLAlchemy 2', 'Alembic',
+      'Redis 7', 'React Native', 'Expo SDK 54', 'TanStack Query',
+      'Next.js 15', 'React 19', 'Tailwind 4', 'shadcn',
+      'OpenAI Whisper', 'Stripe', 'Resend',
+      'Railway', 'Docker', 'Supabase',
+    ],
+    image: '/projects/freshstock/screen-1.jpeg',
+    images: [
+      '/projects/freshstock/screen-1.jpeg',
+      '/projects/freshstock/screen-2.jpeg',
+      '/projects/freshstock/screen-3.jpeg',
+      '/projects/freshstock/screen-4.jpeg',
+      '/projects/freshstock/screen-5.jpeg',
+      '/projects/freshstock/screen-6.jpeg',
+    ],
+    imagePositions: ['top', 'top', 'top', 'top', 'top', 'top'],
+    site: 'https://freshstock-web.vercel.app',
+    source_code_link: 'https://freshstock-web.vercel.app',
+    links: {
+      live: { url: 'https://freshstock-web.vercel.app', label: 'Site live', ctaLabel: 'Voir sur le site ↗' },
+      github: { private: true, reason: `Projet startup — code privé` },
+    },
+  },
+  {
+    id: 'valofenua',
+    name: 'Valofenua',
+    type: 'web',
+    featured: true,
+    mockup: 'browser',
+    year: '2025',
+    description: `Plateforme d'estimation immobilière pour le marché polynésien — scraper quotidien de 1 300+ annonces, agent IA n8n, génération PDF côté client.`,
+    longDescription: `Valofenua est une plateforme web qui automatise l'estimation des prix immobiliers en Polynésie française. Au cœur du produit, un web scraper quotidien collecte 1 300+ annonces des sites locaux, alimente une base PostgreSQL hébergée sur Supabase, et un agent IA orchestré sur n8n calcule des estimations précises pour n'importe quel bien à partir de ses caractéristiques (surface, localisation, type, prestations).
+
+Côté front, c'est un SPA React 19 + Vite 7 + Tailwind 4 + Supabase Auth. La pièce technique notable : la génération PDF entièrement côté client via @react-pdf/renderer — pas de service serveur de rendu, pas de coût d'infra additionnel, le rapport avec branding agence se télécharge instantanément.
+
+Mon rôle : co-fondateur, lead dev front, et management de l'équipe technique en collaboration avec le CEO pour traduire les choix techniques au business.`,
+    tags: [
+      { name: `React 19`, color: `text-cyan-400 text-gradient` },
+      { name: `Supabase`, color: `text-green-400 text-gradient` },
+      { name: `n8n`, color: `text-pink-400 text-gradient` },
+      { name: `PDF render`, color: `text-violet-400 text-gradient` },
+      { name: `AI agent`, color: `text-yellow-400 text-gradient` },
+    ],
+    tech: [
+      'React 19', 'Vite 7', 'Tailwind v4', 'React Router 7',
+      'Supabase', 'PostgreSQL', '@supabase/supabase-js',
+      'n8n', 'AI agent',
+      '@react-pdf/renderer', 'lucide-react',
+      'Vercel',
+    ],
+    image: '/projects/valofenua/screen-1.png',
+    images: [
+      '/projects/valofenua/screen-1.png',
+    ],
+    imagePositions: ['top'],
+    site: 'https://rhl-hebergement.vercel.app/#/connexion',
+    source_code_link: 'https://rhl-hebergement.vercel.app/#/connexion',
+    links: {
+      live: { url: 'https://rhl-hebergement.vercel.app/#/connexion', label: 'Site live', ctaLabel: 'Voir sur le site ↗' },
+      github: { private: true, reason: `Repo public — lien à venir` },
+    },
+  },
   {
     id: 'rubi',
     name: 'Rubi te paye',

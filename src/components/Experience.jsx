@@ -240,13 +240,16 @@ function TimelineNode({ experience, scrollYProgress, timelineRef }) {
 // Per-row particle config: text shape rendered behind the row in the empty
 // half opposite the card.
 const PARTICLE_SHAPES = {
-  0: '{ }',  // Deltyo — Full-Stack
-  1: 'SEO',  // Google — Certification SEO
-  2: '</>',  // OpenClassrooms — Formation web
-  3: '+7%',  // Del Arte — Adjoint Directeur (CA growth)
-  4: '1★',   // Le Lièvre Gourmand — 1 étoile Michelin
-  5: '$_',   // The Hacking Project — Bootcamp (shell prompt)
-  6: '42',   // 42 — La Piscine
+  0: 'IA',   // FreshStock — voice + visual AI inventory
+  1: 'M²',   // Valofenua — real-estate price platform
+  2: 'FL',   // Freelance — multi-projets
+  3: '{ }',  // Deltyo — Full-Stack
+  4: 'SEO',  // Google — Certification SEO
+  5: '</>',  // OpenClassrooms — Formation web
+  6: '+7%',  // Del Arte — Adjoint Directeur (CA growth)
+  7: '1★',   // Le Lièvre Gourmand — 1 étoile Michelin
+  8: '$_',   // The Hacking Project — Bootcamp (shell prompt)
+  9: '42',   // 42 — La Piscine
 }
 
 function TimelineRow({ experience, index, scrollYProgress, timelineRef }) {

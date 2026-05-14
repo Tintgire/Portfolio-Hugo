@@ -25,6 +25,8 @@ import ecole from './company/ecole.png'
 import kitsune from './company/kitsune.png'
 import oc from './company/oc.png'
 import delarte from './company/delarte.png'
+import freshstock from './company/freshstock.png'
+import valofenua from './company/valofenua.png'
 
 import kasa from './kasa.png'
 import hottakes from './hottakes.png'
@@ -59,6 +61,8 @@ export {
   kitsune,
   oc,
   delarte,
+  freshstock,
+  valofenua,
   kasa,
   hottakes,
   kanap,

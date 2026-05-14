@@ -109,10 +109,10 @@ export default function ParticleShapeField2D({ count = 1400 }) {
     // the canvas, but the {} center is clamped inside this box so it never
     // drifts onto/over the card.
     const getBox = () => ({
-      xMin: w * 0.55,
-      xMax: w * 0.92,
-      yMin: h * 0.10,
-      yMax: h * 0.90,
+      xMin: w * 0.68,
+      xMax: w * 0.86,
+      yMin: h * 0.22,
+      yMax: h * 0.78,
     })
 
     // Track mouse via window — the canvas itself is pointer-events: none so it

@@ -24,11 +24,11 @@ const VERTEX = /* glsl */ `
     gl_Position = projectionMatrix * mv;
 
     // Size + scintillation
-    float scintil = 0.55 + 0.45 * sin(uTime * 2.4 + aSeed * 30.0);
-    gl_PointSize = (1.4 + uHover * 1.4) * scintil * uPixelRatio;
+    float scintil = 0.6 + 0.4 * sin(uTime * 2.4 + aSeed * 30.0);
+    gl_PointSize = (4.5 + uHover * 3.5) * scintil * uPixelRatio;
 
     vColor = aColor;
-    vAlpha = 0.45 + 0.55 * scintil;
+    vAlpha = 0.55 + 0.45 * scintil;
   }
 `
 
@@ -88,9 +88,38 @@ export default function ParticleShapeField({ height = 280, count = 1800 }) {
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-    const w = container.clientWidth
-    const h = container.clientHeight
-    if (w === 0 || h === 0) return
+    let w = container.clientWidth
+    let h = container.clientHeight
+
+    // Container may be 0×0 at first paint — wait for layout via ResizeObserver
+    if (w === 0 || h === 0) {
+      const ro = new ResizeObserver((entries) => {
+        const e = entries[0]
+        if (e.contentRect.width > 0 && e.contentRect.height > 0) {
+          ro.disconnect()
+          // Re-trigger by re-running this effect's body
+          init(e.contentRect.width, e.contentRect.height)
+        }
+      })
+      ro.observe(container)
+      return () => ro.disconnect()
+    }
+
+    return init(w, h)
+
+    function init(initW, initH) {
+      try {
+        return setup(initW, initH)
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error('[ParticleShapeField] WebGL setup failed:', err)
+        return undefined
+      }
+    }
+
+    function setup(initW, initH) {
+      w = initW
+      h = initH
 
     const scene = new THREE.Scene()
     const camera = new THREE.OrthographicCamera(-w / 2, w / 2, h / 2, -h / 2, 0.1, 100)
@@ -148,7 +177,7 @@ export default function ParticleShapeField({ height = 280, count = 1800 }) {
       fragmentShader: FRAGMENT,
       transparent: true,
       depthWrite: false,
-      blending: THREE.AdditiveBlending,
+      blending: THREE.NormalBlending,
     })
 
     const points = new THREE.Points(geo, material)
@@ -217,19 +246,20 @@ export default function ParticleShapeField({ height = 280, count = 1800 }) {
     }
     window.addEventListener('resize', onResize)
 
-    return () => {
-      io.disconnect()
-      window.removeEventListener('resize', onResize)
-      container.removeEventListener('mouseenter', onEnter)
-      container.removeEventListener('mouseleave', onLeave)
-      container.removeEventListener('touchstart', onEnter)
-      container.removeEventListener('touchend', onLeave)
-      if (raf) cancelAnimationFrame(raf)
-      geo.dispose()
-      material.dispose()
-      renderer.dispose()
-      if (renderer.domElement.parentNode) {
-        renderer.domElement.parentNode.removeChild(renderer.domElement)
+      return () => {
+        io.disconnect()
+        window.removeEventListener('resize', onResize)
+        container.removeEventListener('mouseenter', onEnter)
+        container.removeEventListener('mouseleave', onLeave)
+        container.removeEventListener('touchstart', onEnter)
+        container.removeEventListener('touchend', onLeave)
+        if (raf) cancelAnimationFrame(raf)
+        geo.dispose()
+        material.dispose()
+        renderer.dispose()
+        if (renderer.domElement.parentNode) {
+          renderer.domElement.parentNode.removeChild(renderer.domElement)
+        }
       }
     }
   }, [count])

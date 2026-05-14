@@ -295,7 +295,7 @@ Stack : Next.js 16 App Router + React 19 + TypeScript strict + Tailwind v4. Anim
     site: 'https://portfolio-lou-six.vercel.app/fr',
     source_code_link: 'https://github.com/Tintgire/Portfolio-Lou',
     links: {
-      live: { url: 'https://portfolio-lou-six.vercel.app/fr', label: 'Site live', ctaLabel: 'Voir le site ↗' },
+      live: { url: 'https://portfolio-lou-six.vercel.app/fr', label: 'Site live', ctaLabel: 'Voir sur le site ↗' },
       github: { url: 'https://github.com/Tintgire/Portfolio-Lou' },
     },
   },

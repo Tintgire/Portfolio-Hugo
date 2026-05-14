@@ -12,11 +12,16 @@ function sampleShapeOffsets(text, w, h) {
   c.height = h
   const ctx = c.getContext('2d')
   ctx.fillStyle = '#fff'
-  ctx.font = `900 ${Math.floor(h * 0.95)}px "JetBrains Mono", "Menlo", "Consolas", monospace`
+  // Font sized at 75% of canvas height to leave ~12% padding top & bottom —
+  // critical so the curly braces' top/bottom curls aren't clipped by the
+  // canvas edges (was 0.95 → bottom of `{ }` was getting cut off).
+  const fontSize = Math.floor(h * 0.75)
+  ctx.font = `900 ${fontSize}px "JetBrains Mono", "Menlo", "Consolas", monospace`
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
-  ctx.fillText('{', w * 0.3, h / 2 + h * 0.04)
-  ctx.fillText('}', w * 0.7, h / 2 + h * 0.04)
+  // Draw at the exact vertical center of the canvas (no offset → no clipping)
+  ctx.fillText('{', w * 0.32, h / 2)
+  ctx.fillText('}', w * 0.68, h / 2)
 
   const data = ctx.getImageData(0, 0, w, h).data
   const offsets = []
@@ -76,9 +81,11 @@ export default function ParticleShapeField2D({ count = 1400 }) {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
       w = cssW
       h = cssH
-      // Re-shape the {} relative to canvas (smaller than canvas, scales with width)
-      shapeW = Math.min(280, w * 0.7)
-      shapeH = Math.min(260, h * 0.6)
+      // Re-shape the {} relative to canvas. Larger sample canvas (was
+      // 280×260) so the full braces fit at a generous font ratio without any
+      // edge clipping. Width must comfortably fit two braces side-by-side.
+      shapeW = Math.min(360, w * 0.8)
+      shapeH = Math.min(320, h * 0.7)
       offsets = sampleShapeOffsets('{ }', shapeW, shapeH)
       initParticles()
       return true

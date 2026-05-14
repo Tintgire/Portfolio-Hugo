@@ -6,22 +6,45 @@ const PALETTE = [
   [236, 72, 153],   // #ec4899
 ]
 
-function sampleShapeOffsets(text, w, h) {
+// Draw a stylized curly brace using explicit canvas paths so the shape is
+// deterministic regardless of which monospace font the browser falls back
+// to. `opening = true` → "{", `opening = false` → "}".
+function drawBrace(ctx, cx, cy, halfH, opening) {
+  const w = halfH * 0.55          // horizontal span (curl width)
+  const dir = opening ? 1 : -1    // { curls left, } curls right
+  const thickness = Math.max(6, halfH * 0.22)
+
+  ctx.strokeStyle = '#fff'
+  ctx.lineWidth = thickness
+  ctx.lineCap = 'round'
+  ctx.lineJoin = 'round'
+  ctx.beginPath()
+  // Outer top corner
+  ctx.moveTo(cx + dir * w, cy - halfH)
+  // Top curl → inward to the vertical bar
+  ctx.quadraticCurveTo(cx, cy - halfH, cx, cy - halfH * 0.65)
+  // Straight down to just above the mid pinch
+  ctx.lineTo(cx, cy - halfH * 0.15)
+  // Pinch: out then back in (the brace's middle "tooth")
+  ctx.quadraticCurveTo(cx, cy, cx - dir * w * 0.55, cy)
+  ctx.quadraticCurveTo(cx, cy, cx, cy + halfH * 0.15)
+  // Straight down to just above the bottom curl
+  ctx.lineTo(cx, cy + halfH * 0.65)
+  // Bottom curl → out to the outer bottom corner
+  ctx.quadraticCurveTo(cx, cy + halfH, cx + dir * w, cy + halfH)
+  ctx.stroke()
+}
+
+function sampleShapeOffsets(w, h) {
   const c = document.createElement('canvas')
   c.width = w
   c.height = h
   const ctx = c.getContext('2d')
-  ctx.fillStyle = '#fff'
-  // Font sized at 75% of canvas height to leave ~12% padding top & bottom —
-  // critical so the curly braces' top/bottom curls aren't clipped by the
-  // canvas edges (was 0.95 → bottom of `{ }` was getting cut off).
-  const fontSize = Math.floor(h * 0.75)
-  ctx.font = `900 ${fontSize}px "JetBrains Mono", "Menlo", "Consolas", monospace`
-  ctx.textAlign = 'center'
-  ctx.textBaseline = 'middle'
-  // Draw at the exact vertical center of the canvas (no offset → no clipping)
-  ctx.fillText('{', w * 0.32, h / 2)
-  ctx.fillText('}', w * 0.68, h / 2)
+  // Half-height of the braces — 40% of canvas height each side of center
+  // (so total brace height = 80% of canvas, leaving 10% padding top/bottom)
+  const halfH = h * 0.4
+  drawBrace(ctx, w * 0.32, h / 2, halfH, true)   // {
+  drawBrace(ctx, w * 0.68, h / 2, halfH, false)  // }
 
   const data = ctx.getImageData(0, 0, w, h).data
   const offsets = []
@@ -52,7 +75,7 @@ export default function ParticleShapeField2D({ count = 1400 }) {
     let particles = []
     let shapeW = 240
     let shapeH = 240
-    let offsets = sampleShapeOffsets('{ }', shapeW, shapeH)
+    let offsets = sampleShapeOffsets(shapeW, shapeH)
 
     const initParticles = () => {
       particles = []
@@ -86,7 +109,7 @@ export default function ParticleShapeField2D({ count = 1400 }) {
       // edge clipping. Width must comfortably fit two braces side-by-side.
       shapeW = Math.min(360, w * 0.8)
       shapeH = Math.min(320, h * 0.7)
-      offsets = sampleShapeOffsets('{ }', shapeW, shapeH)
+      offsets = sampleShapeOffsets(shapeW, shapeH)
       initParticles()
       return true
     }

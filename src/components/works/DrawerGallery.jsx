@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { playTick } from '../../lib/audio/uiSounds'
 
 export default function DrawerGallery({ images, alt, imagePositions }) {
   const [activeIndex, setActiveIndex] = useState(0)
@@ -33,7 +34,10 @@ export default function DrawerGallery({ images, alt, imagePositions }) {
             <button
               key={src}
               type="button"
-              onClick={() => setActiveIndex(i)}
+              onClick={() => {
+                if (i !== activeIndex) playTick()
+                setActiveIndex(i)
+              }}
               aria-label={`Voir l'image ${i + 1}`}
               aria-current={i === activeIndex}
               className={`relative shrink-0 w-20 h-14 rounded-md overflow-hidden border-2 transition-all ${

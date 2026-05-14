@@ -1,4 +1,5 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import DrawerGallery from './DrawerGallery'
 import { useLenis } from '../../lib/LenisProvider'
@@ -7,6 +8,11 @@ import { playDrawerOpen, playDrawerClose } from '../../lib/audio/uiSounds'
 export default function ProjectDrawer({ project, onClose }) {
   const closeBtnRef = useRef(null)
   const lenis = useLenis()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     if (!project) return
@@ -43,7 +49,9 @@ export default function ProjectDrawer({ project, onClose }) {
     onClose()
   }
 
-  return (
+  if (!mounted) return null
+
+  return createPortal(
     <AnimatePresence>
       {project && (
         <>
@@ -161,6 +169,7 @@ export default function ProjectDrawer({ project, onClose }) {
           </motion.aside>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   )
 }

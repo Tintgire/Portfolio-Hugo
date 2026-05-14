@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import {
   VerticalTimeline,
   VerticalTimelineElement,
@@ -8,11 +8,27 @@ import { motion } from 'framer-motion'
 import { experiences } from '../constans'
 import { SectionWrapper } from '../hoc'
 import { textVariant } from '../utils/motion'
+import { playTick } from '../lib/audio/uiSounds'
 
 import 'react-vertical-timeline-component/style.min.css'
 import { styles } from '../styles'
 
 const ExperienceCard = ({ experience }) => {
+  const ref = useRef(null)
+
+  useEffect(() => {
+    const node = ref.current
+    if (!node) return
+    const io = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        playTick()
+        io.disconnect()
+      }
+    }, { threshold: 0.5 })
+    io.observe(node)
+    return () => io.disconnect()
+  }, [])
+
   return (
     <VerticalTimelineElement
       contentStyle={{ background: '#1d1836', color: '#fff' }}
@@ -29,7 +45,7 @@ const ExperienceCard = ({ experience }) => {
         </div>
       }
     >
-      <div>
+      <div ref={ref}>
         <h3 className="text-white text-[24px] font-bold">{experience.title}</h3>
         <p
           className="text-secondary text-[16px] font-semibold"

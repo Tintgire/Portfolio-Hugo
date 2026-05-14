@@ -93,20 +93,38 @@ export default function ParticleShapeField2D({ count = 1400 }) {
 
     let mouseX = -9999
     let mouseY = -9999
+    // Smoothed shape center — what the particles actually target. Lerped each
+    // frame toward the clamped cursor so the {} glides instead of snapping.
+    let shapeCenterX = -9999
+    let shapeCenterY = -9999
     let hoverTarget = 0
     let hover = 0
     let raf = 0
     let visible = true
     const start = performance.now()
 
+    // Active zone: right portion of the canvas (the Deltyo card sits on the
+    // left third — `lg:col-start-1` in the parent's 1fr_140px_1fr grid). The
+    // shape only forms when the cursor enters this box, and is clamped inside
+    // it so it never drifts onto/over the card.
+    const getBox = () => ({
+      xMin: w * 0.55,
+      xMax: w * 0.92,
+      yMin: h * 0.10,
+      yMax: h * 0.90,
+    })
+
     // Track mouse via window — the canvas itself is pointer-events: none so it
-    // doesn't block clicks on cards above it. Hover ON when cursor is inside
-    // the canvas's bounding box.
+    // doesn't block clicks on cards above it. Hover ON only inside the box.
     const onMove = (e) => {
       const r = canvas.getBoundingClientRect()
       mouseX = e.clientX - r.left
       mouseY = e.clientY - r.top
-      hoverTarget = (mouseX >= 0 && mouseX <= r.width && mouseY >= 0 && mouseY <= r.height) ? 1 : 0
+      const b = getBox()
+      const inBox =
+        mouseX >= b.xMin && mouseX <= b.xMax &&
+        mouseY >= b.yMin && mouseY <= b.yMax
+      hoverTarget = inBox ? 1 : 0
     }
     const onLeaveDoc = () => { hoverTarget = 0 }
     window.addEventListener('mousemove', onMove)
@@ -128,6 +146,20 @@ export default function ParticleShapeField2D({ count = 1400 }) {
 
       ctx.clearRect(0, 0, w, h)
 
+      // Smooth the shape center: clamp mouse into the active box, then lerp.
+      // Even fast cursor jumps produce a gentle glide, and the {} can't
+      // wander outside the right-hand zone.
+      const b = getBox()
+      const targetX = Math.max(b.xMin, Math.min(b.xMax, mouseX))
+      const targetY = Math.max(b.yMin, Math.min(b.yMax, mouseY))
+      if (shapeCenterX === -9999) {
+        // First frame after init: snap to box center to avoid a fly-in
+        shapeCenterX = (b.xMin + b.xMax) / 2
+        shapeCenterY = (b.yMin + b.yMax) / 2
+      }
+      shapeCenterX += (targetX - shapeCenterX) * 0.12
+      shapeCenterY += (targetY - shapeCenterY) * 0.12
+
       const wobbleAmp = 1.4 * (1 - hover * 0.6)
 
       for (let i = 0; i < particles.length; i++) {
@@ -135,9 +167,9 @@ export default function ParticleShapeField2D({ count = 1400 }) {
         // origin + wobble
         const wx = p.ox + Math.sin(t * 0.6 + p.seed * 12.5) * wobbleAmp
         const wy = p.oy + Math.cos(t * 0.5 + p.seed * 8.3) * wobbleAmp
-        // target = mouse + offset
-        const tx = mouseX + p.tx
-        const ty = mouseY + p.ty
+        // target = smoothed shape center + per-particle offset within the {}
+        const tx = shapeCenterX + p.tx
+        const ty = shapeCenterY + p.ty
         // lerp
         const x = wx + (tx - wx) * hover
         const y = wy + (ty - wy) * hover

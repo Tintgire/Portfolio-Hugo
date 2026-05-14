@@ -71,6 +71,7 @@ export default function ProjectDrawer({ project, onClose }) {
             role="dialog"
             aria-modal="true"
             aria-labelledby="drawer-title"
+            data-lenis-prevent
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}

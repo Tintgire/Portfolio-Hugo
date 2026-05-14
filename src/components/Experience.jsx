@@ -6,7 +6,7 @@ import { SectionWrapper } from '../hoc'
 import { playTick } from '../lib/audio/uiSounds'
 
 import { styles } from '../styles'
-import ExperienceParticlesBackground from './experience/ExperienceParticlesBackground'
+import ParticleShapeField2D from './experience/ParticleShapeField2D'
 
 const Section = ({ label, children }) => (
   <div className="mt-4">
@@ -168,15 +168,23 @@ function TimelineNode({ experience }) {
 
 function TimelineRow({ experience, index }) {
   const isLeft = index % 2 === 0
+  const showParticles = index === 0 // Deltyo only for now
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[1fr_140px_1fr] gap-6 lg:gap-10 items-start">
+    <div className="grid grid-cols-1 lg:grid-cols-[1fr_140px_1fr] gap-6 lg:gap-10 items-stretch">
       <div className={isLeft ? 'lg:col-start-1' : 'lg:col-start-3'}>
         <ExperienceCard experience={experience} />
       </div>
       <div className="hidden lg:block lg:col-start-2 lg:row-start-1">
         <TimelineNode experience={experience} />
       </div>
+      {showParticles && (
+        <div
+          className={`hidden lg:block lg:row-start-1 ${isLeft ? 'lg:col-start-3' : 'lg:col-start-1'}`}
+        >
+          <ParticleShapeField2D />
+        </div>
+      )}
     </div>
   )
 }
@@ -195,10 +203,6 @@ const Experience = () => {
       </motion.div>
 
       <div className="relative mt-16">
-        {/* Single full-width WebGL canvas behind everything — particles show in
-            empty columns, hidden behind the opaque cards on the populated side */}
-        <ExperienceParticlesBackground />
-
         {/* Center vertical rail — desktop only */}
         <div
           aria-hidden="true"

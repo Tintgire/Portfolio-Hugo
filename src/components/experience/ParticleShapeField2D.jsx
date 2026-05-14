@@ -99,18 +99,18 @@ export default function ParticleShapeField2D({ count = 1400 }) {
     let visible = true
     const start = performance.now()
 
+    // Track mouse via window — the canvas itself is pointer-events: none so it
+    // doesn't block clicks on cards above it. Hover ON when cursor is inside
+    // the canvas's bounding box.
     const onMove = (e) => {
       const r = canvas.getBoundingClientRect()
       mouseX = e.clientX - r.left
       mouseY = e.clientY - r.top
+      hoverTarget = (mouseX >= 0 && mouseX <= r.width && mouseY >= 0 && mouseY <= r.height) ? 1 : 0
     }
-    const onEnter = () => { hoverTarget = 1 }
-    const onLeave = () => { hoverTarget = 0 }
-    canvas.addEventListener('mousemove', onMove)
-    canvas.addEventListener('mouseenter', onEnter)
-    canvas.addEventListener('mouseleave', onLeave)
-    canvas.addEventListener('touchstart', onEnter, { passive: true })
-    canvas.addEventListener('touchend', onLeave)
+    const onLeaveDoc = () => { hoverTarget = 0 }
+    window.addEventListener('mousemove', onMove)
+    window.addEventListener('mouseout', onLeaveDoc)
 
     const io = new IntersectionObserver(([entry]) => {
       visible = entry.isIntersecting
@@ -161,11 +161,8 @@ export default function ParticleShapeField2D({ count = 1400 }) {
     return () => {
       io.disconnect()
       window.removeEventListener('resize', onResize)
-      canvas.removeEventListener('mousemove', onMove)
-      canvas.removeEventListener('mouseenter', onEnter)
-      canvas.removeEventListener('mouseleave', onLeave)
-      canvas.removeEventListener('touchstart', onEnter)
-      canvas.removeEventListener('touchend', onLeave)
+      window.removeEventListener('mousemove', onMove)
+      window.removeEventListener('mouseout', onLeaveDoc)
       if (raf) cancelAnimationFrame(raf)
     }
   }, [count])
@@ -174,7 +171,7 @@ export default function ParticleShapeField2D({ count = 1400 }) {
     <canvas
       ref={canvasRef}
       aria-hidden="true"
-      style={{ width: '100%', height: '100%', display: 'block', cursor: 'crosshair' }}
+      style={{ width: '100%', height: '100%', display: 'block' }}
     />
   )
 }

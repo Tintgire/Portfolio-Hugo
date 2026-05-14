@@ -171,20 +171,26 @@ function TimelineRow({ experience, index }) {
   const showParticles = index === 0 // Deltyo only for now
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[1fr_140px_1fr] gap-6 lg:gap-10 items-stretch">
-      <div className={isLeft ? 'lg:col-start-1' : 'lg:col-start-3'}>
-        <ExperienceCard experience={experience} />
-      </div>
-      <div className="hidden lg:block lg:col-start-2 lg:row-start-1">
-        <TimelineNode experience={experience} />
-      </div>
+    <div className="relative grid grid-cols-1 lg:grid-cols-[1fr_140px_1fr] gap-6 lg:gap-10 items-stretch">
       {showParticles && (
+        // Full-bleed canvas behind everything: spans the full viewport width,
+        // matches the row height (= card height via items-stretch). z-0 so the
+        // card (z-10) covers the middle, particles only show in the empty
+        // halves on either side.
         <div
-          className={`hidden lg:block lg:row-start-1 ${isLeft ? 'lg:col-start-3' : 'lg:col-start-1'}`}
+          aria-hidden="true"
+          className="hidden lg:block absolute top-0 bottom-0 z-0 pointer-events-none"
+          style={{ left: 'calc(50% - 50vw)', width: '100vw' }}
         >
           <ParticleShapeField2D />
         </div>
       )}
+      <div className={`relative z-10 ${isLeft ? 'lg:col-start-1' : 'lg:col-start-3'}`}>
+        <ExperienceCard experience={experience} />
+      </div>
+      <div className="hidden lg:block lg:col-start-2 lg:row-start-1 relative z-10">
+        <TimelineNode experience={experience} />
+      </div>
     </div>
   )
 }

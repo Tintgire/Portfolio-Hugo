@@ -191,7 +191,7 @@ const experiences = [
     context: 'Restaurant ≈ 2 M€ de CA annuel · équipe 20 personnes',
     icon: delarte,
     iconBg: '#D32027',
-    date: '2014 — 2022 (Adjoint Directeur 2019 — 2022)',
+    date: '2014 — 2022',
     challenge: `Performance et croissance d'un restaurant à fort volume. Management d'équipe et standards qualité / hygiène en environnement haute pression.`,
     points: [
       `Progression interne sur 8 ans : Serveur/Cuisinier → Leader salle → Adjoint Directeur.`,

@@ -254,6 +254,52 @@ Projet d'entreprise — code source privé. Disponible sur l'App Store.`,
     },
   },
   {
+    id: 'lou',
+    name: 'Lou Studio',
+    type: 'web',
+    featured: true,
+    mockup: 'browser',
+    year: '2026',
+    description: `Portfolio éditorial brutaliste pour Lou Boidin, makeup artist & styliste parisienne. Direction cinématique, scroll piloté, 3D custom, bilingue FR/EN.`,
+    longDescription: `Lou Boidin est makeup artist et styliste à Paris. Le brief : un portfolio éditorial qui traduit son univers — brutalisme, contraste fort, photo dominante, zéro UI parasite — sans tomber dans le portfolio "agence créative" générique.
+
+L'expérience est cinématique. Le Hero est pinné en sticky avec un frame-sequence canvas player (WebP pré-décodés swappés au scroll, plus fluide qu'une video native), un manifesto MAKEUP → STYLISM en crossfade scroll-driven, une gallery éditoriale 600vh qui slide d'une photo à l'autre. Les pages projets ont leur grand chiffre fantôme en arrière-plan, un compteur qui s'anime à l'intersection, et un grain film en SVG inline.
+
+La pièce maîtresse : l'iPhone 3D dans la section Contact. Modèle glTF Sketchfab réel, sur lequel un screenshot Instagram clipé en rounded-rectangle est projeté via DecalGeometry — la texture épouse la surface réelle de l'écran, pas un sticker plat. Cliquable, ouvre le profil IG.
+
+Stack : Next.js 16 App Router + React 19 + TypeScript strict + Tailwind v4. Animations Framer Motion / Lenis / GSAP-ScrollTrigger bridgés. 3D React Three Fiber + Drei. i18n FR/EN via next-intl. Tests Vitest + Playwright. Déployé sur Vercel.`,
+    tags: [
+      { name: `Next.js 16`, color: `text-white text-gradient` },
+      { name: `React 19`, color: `text-cyan-400 text-gradient` },
+      { name: `TypeScript`, color: `text-blue-400 text-gradient` },
+      { name: `Tailwind v4`, color: `text-sky-400 text-gradient` },
+      { name: `Three.js`, color: `text-pink-400 text-gradient` },
+      { name: `Framer Motion`, color: `text-purple-400 text-gradient` },
+    ],
+    tech: [
+      'Next.js 16', 'React 19', 'TypeScript', 'Tailwind v4',
+      'Framer Motion', 'Lenis', 'GSAP', 'ScrollTrigger',
+      'Three.js', 'React Three Fiber', 'Drei', 'DecalGeometry',
+      'next-intl', 'next-mdx-remote', 'MDX',
+      'Vitest', 'Playwright', 'ESLint', 'Prettier', 'pnpm', 'Vercel',
+    ],
+    image: '/projects/lou/screen-1.png',
+    images: [
+      '/projects/lou/screen-1.png',
+      '/projects/lou/screen-2.png',
+      '/projects/lou/screen-3.png',
+      '/projects/lou/screen-4.png',
+      '/projects/lou/screen-5.png',
+    ],
+    imagePositions: ['top', 'top', 'top', 'top', 'top'],
+    site: 'https://portfolio-lou-six.vercel.app/fr',
+    source_code_link: 'https://github.com/Tintgire/Portfolio-Lou',
+    links: {
+      live: { url: 'https://portfolio-lou-six.vercel.app/fr', label: 'Site live' },
+      github: { url: 'https://github.com/Tintgire/Portfolio-Lou' },
+    },
+  },
+  {
     id: 'kasa',
     name: `Kaza`,
     type: 'web',

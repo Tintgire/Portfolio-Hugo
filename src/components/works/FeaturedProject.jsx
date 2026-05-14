@@ -4,7 +4,8 @@ import { useMagneticHover } from '../../lib/hooks/useMagneticHover'
 import { playClick, setLayerActive } from '../../lib/audio/uiSounds'
 
 export default function FeaturedProject({ project, onOpen }) {
-  const { name, description, tech, images, links, year } = project
+  const { name, description, tech, images, links, year, mockup = 'phones' } = project
+  const isBrowser = mockup === 'browser'
 
   const articleRef = useRef(null)
   const liveCtaRef = useRef(null)
@@ -34,7 +35,7 @@ export default function FeaturedProject({ project, onOpen }) {
       transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
       className="relative w-full rounded-3xl overflow-hidden border border-[#915EFF]/25 bg-gradient-to-br from-[#1a0a35] via-[#2a1156] to-[#050211] p-8 sm:p-12 my-8"
     >
-      <div className="grid lg:grid-cols-[1fr_420px] gap-10 items-center">
+      <div className={`grid ${isBrowser ? 'lg:grid-cols-[1fr_560px]' : 'lg:grid-cols-[1fr_420px]'} gap-10 items-center`}>
         <div className="relative z-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-500/15 border border-pink-500/40 text-pink-300 text-[10px] tracking-[0.2em] uppercase font-bold mb-4">
             <span className="w-1.5 h-1.5 rounded-full bg-pink-400 animate-pulse" />
@@ -91,17 +92,53 @@ export default function FeaturedProject({ project, onOpen }) {
           )}
         </div>
 
-        <div className="relative h-[420px] w-full max-w-[420px] mx-auto lg:mx-0" style={{ perspective: '1000px' }}>
-          <PhoneMockup src={images[3]} pos={{ left: '10%', top: '60px' }} transform={{ rotateY: -20, rotateZ: 8, scale: 0.85 }} opacity={0.85} z={10} />
-          <PhoneMockup src={images[2]} pos={{ left: '28%', top: '10px' }} transform={{ rotateY: -15, rotateZ: 4 }} z={20} />
-          <PhoneMockup src={images[1]} pos={{ left: '50%', top: '0' }} transform={{ rotateY: 0, rotateZ: 0 }} z={30} featured />
-          <PhoneMockup src={images[0]} pos={{ left: '72%', top: '20px' }} transform={{ rotateY: 15, rotateZ: -6 }} z={20} />
-        </div>
+        {isBrowser ? (
+          <BrowserMockup src={images[0]} url={links?.live?.url ?? ''} />
+        ) : (
+          <div className="relative h-[420px] w-full max-w-[420px] mx-auto lg:mx-0" style={{ perspective: '1000px' }}>
+            <PhoneMockup src={images[3]} pos={{ left: '10%', top: '60px' }} transform={{ rotateY: -20, rotateZ: 8, scale: 0.85 }} opacity={0.85} z={10} />
+            <PhoneMockup src={images[2]} pos={{ left: '28%', top: '10px' }} transform={{ rotateY: -15, rotateZ: 4 }} z={20} />
+            <PhoneMockup src={images[1]} pos={{ left: '50%', top: '0' }} transform={{ rotateY: 0, rotateZ: 0 }} z={30} featured />
+            <PhoneMockup src={images[0]} pos={{ left: '72%', top: '20px' }} transform={{ rotateY: 15, rotateZ: -6 }} z={20} />
+          </div>
+        )}
       </div>
 
       <div aria-hidden className="absolute -top-20 -right-20 w-72 h-72 bg-purple-500/30 rounded-full blur-3xl pointer-events-none" />
       <div aria-hidden className="absolute -bottom-20 -left-20 w-72 h-72 bg-pink-500/20 rounded-full blur-3xl pointer-events-none" />
     </motion.article>
+  )
+}
+
+function BrowserMockup({ src, url }) {
+  let host = url
+  try {
+    host = new URL(url).host
+  } catch {
+    // ignore
+  }
+  return (
+    <motion.div
+      animate={{ y: [0, -6, 0] }}
+      transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+      className="relative w-full max-w-[560px] mx-auto lg:mx-0 rounded-xl overflow-hidden border border-white/15 bg-black shadow-2xl shadow-black/60"
+    >
+      <div className="flex items-center gap-2 px-3 py-2 bg-black/85 border-b border-white/10">
+        <div className="flex gap-1.5">
+          <span className="w-2.5 h-2.5 rounded-full bg-[#ff5f57]" />
+          <span className="w-2.5 h-2.5 rounded-full bg-[#febc2e]" />
+          <span className="w-2.5 h-2.5 rounded-full bg-[#28c840]" />
+        </div>
+        <div className="flex-1 mx-3 px-3 py-1 rounded-md bg-white/5 text-[10px] text-white/55 truncate text-center">
+          {host || url}
+        </div>
+        <div className="w-[60px]" />
+      </div>
+      <div className="aspect-[16/10] overflow-hidden bg-black">
+        <img src={src} alt="" className="w-full h-full object-cover object-top" />
+      </div>
+      <div aria-hidden className="absolute inset-0 pointer-events-none rounded-xl shadow-[inset_0_0_30px_rgba(145,94,255,0.25)]" />
+    </motion.div>
   )
 }
 

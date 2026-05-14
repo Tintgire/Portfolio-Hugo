@@ -1,10 +1,14 @@
 import { useEffect, useRef } from 'react'
+import { subscribeMouse, getMouseX, getMouseY } from '../../lib/mouseTracker'
 
 const PALETTE = [
   [145, 94, 255],   // #915EFF
   [192, 132, 252],  // #c084fc
   [236, 72, 153],   // #ec4899
 ]
+// Pre-built fillStyle strings (no per-frame alloc); per-particle alpha is
+// applied via globalAlpha.
+const PALETTE_STR = PALETTE.map(([r, g, b]) => `rgb(${r}, ${g}, ${b})`)
 
 const FONT_STACK = '"JetBrains Mono", "Menlo", "Consolas", monospace'
 
@@ -54,7 +58,7 @@ function sampleShapeOffsets(w, h, shape) {
   return offsets
 }
 
-export default function ParticleShapeField2D({ count = 1400, shape = '{ }', side = 'right' }) {
+export default function ParticleShapeField2D({ count = 900, shape = '{ }', side = 'right' }) {
   const canvasRef = useRef(null)
 
   useEffect(() => {
@@ -68,33 +72,34 @@ export default function ParticleShapeField2D({ count = 1400, shape = '{ }', side
 
     let w = canvas.clientWidth
     let h = canvas.clientHeight
-    let particles = []
+    // Particle data stored in flat typed-array-friendly buckets per palette
+    // color. Bucket-by-color avoids per-particle fillStyle changes (fillStyle
+    // setter parses CSS colors, which is hot-path-expensive). Per-particle
+    // alpha is applied via ctx.globalAlpha on each fillRect.
+    const buckets = PALETTE.map(() => ({
+      ox: [], oy: [], tx: [], ty: [], seed: [], size: [],
+    }))
     let shapeW = 240
     let shapeH = 240
     let offsets = sampleShapeOffsets(shapeW, shapeH, shape)
 
     const initParticles = () => {
-      particles = []
+      for (const b of buckets) { b.ox.length = 0; b.oy.length = 0; b.tx.length = 0; b.ty.length = 0; b.seed.length = 0; b.size.length = 0 }
       const N = offsets.length
       for (let i = 0; i < count; i++) {
-        // Distribute particles UNIFORMLY across the offsets array. The
-        // offsets are sampled top-to-bottom, so naive `i % N` (when count <
-        // N, which is the common case: count=1400 vs N≈3700 for {}) would
-        // assign all particles to the top half of the shape and leave the
-        // bottom half empty. Stride-sampling ensures every part of the {}
-        // gets particles.
+        // Stride sampling so all parts of the silhouette get particles even
+        // when count < N (offsets are top-to-bottom; naive `i % N` would
+        // only cover the top of the shape).
         const idx = N > 0 ? Math.floor((i / count) * N) % N : 0
         const o = N > 0 ? offsets[idx] : [0, 0]
-        const c = PALETTE[Math.floor(Math.random() * PALETTE.length)]
-        particles.push({
-          ox: Math.random() * w,           // origin
-          oy: Math.random() * h,
-          tx: o[0],                        // shape offset (relative to mouse)
-          ty: o[1],
-          color: c,
-          seed: Math.random(),
-          size: 0.9 + Math.random() * 0.6,
-        })
+        const colorIdx = Math.floor(Math.random() * PALETTE.length)
+        const b = buckets[colorIdx]
+        b.ox.push(Math.random() * w)
+        b.oy.push(Math.random() * h)
+        b.tx.push(o[0])
+        b.ty.push(o[1])
+        b.seed.push(Math.random())
+        b.size.push(0.9 + Math.random() * 0.6)
       }
     }
 
@@ -102,15 +107,16 @@ export default function ParticleShapeField2D({ count = 1400, shape = '{ }', side
       const cssW = canvas.clientWidth
       const cssH = canvas.clientHeight
       if (cssW === 0 || cssH === 0) return false
-      const dpr = Math.min(window.devicePixelRatio || 1, 2)
-      canvas.width = cssW * dpr
-      canvas.height = cssH * dpr
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+      // Hard-cap DPR at 1 — particles look fine at native resolution and
+      // 7 simultaneous canvases at DPR=2 quadruple the per-frame pixel
+      // work for no real visual gain.
+      canvas.width = cssW
+      canvas.height = cssH
+      ctx.setTransform(1, 0, 0, 1, 0, 0)
       w = cssW
       h = cssH
-      // Re-shape the {} relative to canvas. Larger sample canvas (was
-      // 280×260) so the full braces fit at a generous font ratio without any
-      // edge clipping. Width must comfortably fit two braces side-by-side.
+      // Sample canvas dims for the brace/text silhouette (separate from the
+      // render canvas size; just controls the resolution of the offsets).
       shapeW = Math.min(360, w * 0.8)
       shapeH = Math.min(320, h * 0.7)
       offsets = sampleShapeOffsets(shapeW, shapeH, shape)
@@ -125,10 +131,8 @@ export default function ParticleShapeField2D({ count = 1400, shape = '{ }', side
       ro.observe(canvas)
     }
 
-    let mouseX = -9999
-    let mouseY = -9999
-    // Smoothed shape center — what the particles actually target. Lerped each
-    // frame toward the clamped cursor so the {} glides instead of snapping.
+    // Smoothed shape center — what the particles target. Lerped each frame
+    // toward the clamped cursor so the shape glides instead of snapping.
     let shapeCenterX = -9999
     let shapeCenterY = -9999
     let hoverTarget = 0
@@ -137,34 +141,30 @@ export default function ParticleShapeField2D({ count = 1400, shape = '{ }', side
     let visible = true
     const start = performance.now()
 
+    // Cached canvas bounding rect — mouse-position math only needs the rect
+    // to map clientX/Y into local canvas coords. Recompute lazily on scroll
+    // and resize instead of on every mousemove (which was happening 7×
+    // before this refactor — one lookup per ParticleShapeField2D instance).
+    let cachedRect = canvas.getBoundingClientRect()
+    const refreshRect = () => { cachedRect = canvas.getBoundingClientRect() }
+
+    // Subscribe to the shared mouse tracker (one window-level listener
+    // shared across all instances) instead of installing our own.
+    const unsubscribeMouse = subscribeMouse()
+
     // Shape confinement zone: the empty viewport-half OPPOSITE the card.
-    // For odd-indexed timeline rows the card is on the right and the
-    // particles render on the LEFT (centered around 25% of viewport
-    // width); for even-indexed rows the card is on the left, particles
-    // on the RIGHT (centered around 75%). Both modes share the same
-    // tight 16% horizontal span and centered 30% vertical band.
     const getBox = () => side === 'left'
       ? { xMin: w * 0.17, xMax: w * 0.33, yMin: h * 0.35, yMax: h * 0.65 }
       : { xMin: w * 0.67, xMax: w * 0.83, yMin: h * 0.35, yMax: h * 0.65 }
 
-    // Track mouse via window — the canvas itself is pointer-events: none so it
-    // doesn't block clicks on cards above it. Hover ON anywhere on the canvas.
-    // NOTE: do not also listen to `mouseout` — it bubbles up from every text
-    // node and element transition, which would constantly reset hoverTarget
-    // to 0 between mousemove ticks. The result was hover converging to ~0.5
-    // (a half-formed {} shape). onMove alone fully tracks enter/leave because
-    // it re-evaluates the bounds check each move.
-    const onMove = (e) => {
-      const r = canvas.getBoundingClientRect()
-      mouseX = e.clientX - r.left
-      mouseY = e.clientY - r.top
-      hoverTarget = (mouseX >= 0 && mouseX <= r.width && mouseY >= 0 && mouseY <= r.height) ? 1 : 0
-    }
-    window.addEventListener('mousemove', onMove)
-
     const io = new IntersectionObserver(([entry]) => {
       visible = entry.isIntersecting
-      if (visible && !raf) tick()
+      if (visible) {
+        // Refresh the cached rect on (re)entry — its position likely changed
+        // since we last saw it.
+        refreshRect()
+        if (!raf) tick()
+      }
     })
     io.observe(canvas)
 
@@ -173,19 +173,22 @@ export default function ParticleShapeField2D({ count = 1400, shape = '{ }', side
         raf = 0
         return
       }
+      // Compute mouse position relative to the cached rect (no
+      // getBoundingClientRect here).
+      const mx = getMouseX() - cachedRect.left
+      const my = getMouseY() - cachedRect.top
+      hoverTarget = (mx >= 0 && mx <= cachedRect.width && my >= 0 && my <= cachedRect.height) ? 1 : 0
+
       hover += (hoverTarget - hover) * 0.07
       const t = reduced ? 0 : (performance.now() - start) / 1000
 
       ctx.clearRect(0, 0, w, h)
 
       // Smooth the shape center: clamp mouse into the active box, then lerp.
-      // Even fast cursor jumps produce a gentle glide, and the {} can't
-      // wander outside the right-hand zone.
       const b = getBox()
-      const targetX = Math.max(b.xMin, Math.min(b.xMax, mouseX))
-      const targetY = Math.max(b.yMin, Math.min(b.yMax, mouseY))
+      const targetX = Math.max(b.xMin, Math.min(b.xMax, mx))
+      const targetY = Math.max(b.yMin, Math.min(b.yMax, my))
       if (shapeCenterX === -9999) {
-        // First frame after init: snap to box center to avoid a fly-in
         shapeCenterX = (b.xMin + b.xMax) / 2
         shapeCenterY = (b.yMin + b.yMax) / 2
       }
@@ -193,25 +196,31 @@ export default function ParticleShapeField2D({ count = 1400, shape = '{ }', side
       shapeCenterY += (targetY - shapeCenterY) * 0.12
 
       const wobbleAmp = 1.4 * (1 - hover * 0.6)
+      const sizeBoost = 1.6 + hover * 0.6
 
-      for (let i = 0; i < particles.length; i++) {
-        const p = particles[i]
-        // origin + wobble
-        const wx = p.ox + Math.sin(t * 0.6 + p.seed * 12.5) * wobbleAmp
-        const wy = p.oy + Math.cos(t * 0.5 + p.seed * 8.3) * wobbleAmp
-        // target = smoothed shape center + per-particle offset within the {}
-        const tx = shapeCenterX + p.tx
-        const ty = shapeCenterY + p.ty
-        // lerp
-        const x = wx + (tx - wx) * hover
-        const y = wy + (ty - wy) * hover
-        // scintillate
-        const scintil = 0.6 + 0.4 * Math.sin(t * 2.4 + p.seed * 30)
-        const a = (0.55 + 0.45 * scintil) * 0.95
-        const sz = (1.6 + hover * 0.6) * scintil * p.size
-        ctx.fillStyle = `rgba(${p.color[0]}, ${p.color[1]}, ${p.color[2]}, ${a})`
-        ctx.fillRect(x, y, sz, sz)
+      // Iterate per color bucket. Setting fillStyle once per bucket avoids
+      // ~`count` CSS-color-string allocations + parses per frame.
+      for (let bi = 0; bi < buckets.length; bi++) {
+        const bk = buckets[bi]
+        ctx.fillStyle = PALETTE_STR[bi]
+        const oxArr = bk.ox, oyArr = bk.oy, txArr = bk.tx, tyArr = bk.ty
+        const seedArr = bk.seed, sizeArr = bk.size
+        const len = oxArr.length
+        for (let i = 0; i < len; i++) {
+          const seed = seedArr[i]
+          const wx = oxArr[i] + Math.sin(t * 0.6 + seed * 12.5) * wobbleAmp
+          const wy = oyArr[i] + Math.cos(t * 0.5 + seed * 8.3) * wobbleAmp
+          const tx = shapeCenterX + txArr[i]
+          const ty = shapeCenterY + tyArr[i]
+          const x = wx + (tx - wx) * hover
+          const y = wy + (ty - wy) * hover
+          const scintil = 0.6 + 0.4 * Math.sin(t * 2.4 + seed * 30)
+          ctx.globalAlpha = (0.55 + 0.45 * scintil) * 0.95
+          const sz = sizeBoost * scintil * sizeArr[i]
+          ctx.fillRect(x, y, sz, sz)
+        }
       }
+      ctx.globalAlpha = 1
 
       raf = requestAnimationFrame(tick)
     }
@@ -219,13 +228,18 @@ export default function ParticleShapeField2D({ count = 1400, shape = '{ }', side
 
     const onResize = () => {
       sizeCanvas()
+      refreshRect()
     }
+    // Passive scroll listener to keep cachedRect in sync without forcing
+    // synchronous layout on every scroll event.
     window.addEventListener('resize', onResize)
+    window.addEventListener('scroll', refreshRect, { passive: true })
 
     return () => {
       io.disconnect()
       window.removeEventListener('resize', onResize)
-      window.removeEventListener('mousemove', onMove)
+      window.removeEventListener('scroll', refreshRect)
+      unsubscribeMouse()
       if (raf) cancelAnimationFrame(raf)
     }
   }, [count, shape, side])

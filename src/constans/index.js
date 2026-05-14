@@ -219,21 +219,24 @@ const projects = [
     description: `Application qui vous paie pour qui vous êtes. Contrôle total de vos données, compensation directe à chaque utilisation, sécurité garantie.`,
     longDescription: `Rubi inverse l'équation des données personnelles : au lieu que les utilisateurs cèdent gratuitement leurs informations aux plateformes, l'application leur reverse une rémunération directe à chaque utilisation. Au cœur du produit, un système de consentement granulaire — l'utilisateur autorise (ou refuse) l'accès, donnée par donnée — et un wallet intégré qui crédite les gains en temps réel.
 
-Côté technique, le stack est résolument mobile-first : React Native pour l'app iOS/Android avec composants natifs (Java/Kotlin/Objective-C) pour les modules de sécurité, Next.js pour le dashboard web et l'API publique, Supabase + Firebase pour la persistance et l'auth, le tout orchestré via Docker. La sécurité a été pensée dès la conception : chiffrement bout en bout des consentements et audit trail immutable.
+Côté technique, l'écosystème est une stack JavaScript de bout en bout (React Native + React + Node.js), centrée sur Firebase et Google Cloud côté infra. L'app mobile (React Native + UI Kitten + Redux Toolkit) cohabite avec le site principal Rubi (Next.js + Chakra UI + Framer Motion) et les sites marketing en React. Le backend Node/Express tourne sur GCP App Engine, avec Firestore pour le temps réel, Memgraph/Neo4j pour le graphe de relations, et Stripe pour le paiement. Outillage : Docker, Fastlane, Sentry, Algolia pour la recherche, i18next pour la localisation.
 
 Projet d'entreprise — code source privé. Disponible sur l'App Store.`,
     tags: [
       { name: `React Native`, color: `text-cyan-400 text-gradient` },
       { name: `Next.js`, color: `text-white text-gradient` },
-      { name: `Tailwind`, color: `text-sky-400 text-gradient` },
-      { name: `Supabase`, color: `text-green-400 text-gradient` },
+      { name: `Node.js`, color: `text-green-400 text-gradient` },
       { name: `Firebase`, color: `text-orange-400 text-gradient` },
-      { name: `Docker`, color: `text-blue-400 text-gradient` },
+      { name: `Stripe`, color: `text-violet-400 text-gradient` },
+      { name: `Neo4j`, color: `text-cyan-300 text-gradient` },
     ],
     tech: [
-      'React Native', 'Next.js', 'Tailwind', 'Supabase', 'Docker',
-      'Firebase', 'Java', 'Ruby', 'Kotlin', 'Objective-C',
-      'SCSS', 'JavaScript', 'HTML', 'Shell',
+      'React Native', 'UI Kitten', 'Redux Toolkit',
+      'Next.js', 'Chakra UI', 'Framer Motion',
+      'React', 'Sass', 'React Router',
+      'Node.js', 'Express', 'Stripe', 'Memgraph/Neo4j',
+      'Google Cloud', 'Firebase', 'Docker', 'Fastlane', 'Sentry',
+      'Algolia', 'Google Maps', 'i18next',
     ],
     image: '/projects/rubi/screen-2.png',
     images: [

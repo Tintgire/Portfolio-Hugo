@@ -139,7 +139,7 @@ const experiences = [
     context: 'B2B inventaire restauration vocale + IA · iOS / Android / web',
     icon: freshstock,
     iconBg: '#064E3B',
-    date: '2026',
+    date: '2026 — Présent',
     challenge: `Réinventer l'inventaire en restauration : remplacer les 2 h de comptage Excel manuel par une app qui comprend la voix, lit le visuel, et calcule le stock en temps réel.`,
     actionsLabel: 'Architecture & stack',
     points: [

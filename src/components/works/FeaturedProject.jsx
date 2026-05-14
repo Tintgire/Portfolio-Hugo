@@ -39,7 +39,7 @@ export default function FeaturedProject({ project, onOpen }) {
       transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
       className="relative w-full rounded-3xl overflow-hidden border border-[#915EFF]/25 bg-gradient-to-br from-[#1a0a35] via-[#2a1156] to-[#050211] p-8 sm:p-12 my-8"
     >
-      <div className={`grid ${isBrowser ? 'lg:grid-cols-[1fr_560px]' : 'lg:grid-cols-[1fr_420px]'} gap-10 items-center`}>
+      <div className={`grid ${isBrowser ? 'lg:grid-cols-[1fr_560px]' : 'lg:grid-cols-[1fr_320px]'} gap-10 items-center`}>
         <div className="relative z-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-500/15 border border-pink-500/40 text-pink-300 text-[10px] tracking-[0.2em] uppercase font-bold mb-4">
             <span className="w-1.5 h-1.5 rounded-full bg-pink-400 animate-pulse" />
@@ -99,12 +99,7 @@ export default function FeaturedProject({ project, onOpen }) {
         {isBrowser ? (
           <BrowserMockup src={images[0]} url={links?.live?.url ?? ''} />
         ) : (
-          <div className="relative h-[420px] w-full max-w-[420px] mx-auto lg:mx-0" style={{ perspective: '1000px' }}>
-            <PhoneMockup src={images[3]} pos={{ left: '10%', top: '60px' }} transform={{ rotateY: -20, rotateZ: 8, scale: 0.85 }} opacity={0.85} z={10} />
-            <PhoneMockup src={images[2]} pos={{ left: '28%', top: '10px' }} transform={{ rotateY: -15, rotateZ: 4 }} z={20} />
-            <PhoneMockup src={images[1]} pos={{ left: '50%', top: '0' }} transform={{ rotateY: 0, rotateZ: 0 }} z={30} featured />
-            <PhoneMockup src={images[0]} pos={{ left: '72%', top: '20px' }} transform={{ rotateY: 15, rotateZ: -6 }} z={20} />
-          </div>
+          <PhoneHero src={images[0]} thumbs={images.slice(1, 5)} />
         )}
       </div>
 
@@ -146,29 +141,49 @@ function BrowserMockup({ src, url }) {
   )
 }
 
-function PhoneMockup({ src, pos, transform, opacity = 1, z = 1, featured = false }) {
-  const transformStr = `rotateY(${transform.rotateY}deg) rotateZ(${transform.rotateZ}deg) scale(${transform.scale ?? 1})`
+// Single hero phone — much bigger than the previous 4-stacked-phones layout.
+// Width is fixed at 280px; height is driven by the screenshot's natural
+// aspect ratio (no forced object-cover crop). The card grows to match.
+// Up to 4 small thumbnails sit below for the secondary screens.
+function PhoneHero({ src, thumbs = [] }) {
   return (
-    <motion.div
-      animate={{ y: [0, -8, 0] }}
-      transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-      style={{
-        position: 'absolute',
-        left: pos.left,
-        top: pos.top,
-        transform: transformStr,
-        transformStyle: 'preserve-3d',
-        opacity,
-        zIndex: z,
-        width: '130px',
-        height: '270px',
-      }}
-      className={`rounded-[22px] bg-black border-2 ${featured ? 'border-white/30' : 'border-white/15'} overflow-hidden shadow-2xl shadow-black/60`}
-    >
-      <div className="absolute inset-1 rounded-[18px] overflow-hidden">
-        <img src={src} alt="" className="w-full h-full object-cover" />
-      </div>
-      <div aria-hidden className="absolute inset-0 rounded-[22px] shadow-[inset_0_0_30px_rgba(145,94,255,0.3)] pointer-events-none" />
-    </motion.div>
+    <div className="w-full max-w-[320px] mx-auto lg:mx-0 flex flex-col items-center gap-4">
+      <motion.div
+        animate={{ y: [0, -8, 0] }}
+        transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+        style={{ width: '280px' }}
+        className="relative rounded-[34px] bg-black border-2 border-white/20 overflow-hidden shadow-2xl shadow-black/60"
+      >
+        {/* The screenshot dictates the phone height — no forced ratio,
+         * no object-cover, so the full screen content stays visible. */}
+        <img
+          src={src}
+          alt=""
+          className="block w-full h-auto rounded-[28px]"
+          style={{ display: 'block' }}
+        />
+        <div
+          aria-hidden
+          className="absolute inset-0 rounded-[34px] shadow-[inset_0_0_30px_rgba(145,94,255,0.3)] pointer-events-none"
+        />
+      </motion.div>
+
+      {thumbs.length > 0 && (
+        <div className="flex gap-2 justify-center flex-wrap">
+          {thumbs.map((thumbSrc, i) => (
+            <div
+              key={i}
+              className="w-12 rounded-md overflow-hidden border border-white/15 bg-black"
+            >
+              <img
+                src={thumbSrc}
+                alt=""
+                className="block w-full h-auto rounded-[4px]"
+              />
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   )
 }

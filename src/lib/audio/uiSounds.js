@@ -121,7 +121,7 @@ export function playTick() {
 
 import Soundfont from 'soundfont-player'
 
-const BEAT = 1.0
+const BEAT = 1.2 // 50 BPM — slow, contemplative
 const LOOKAHEAD = 0.1
 const TICK_MS = 50
 const FADE_OUT = 2
@@ -145,12 +145,12 @@ const THRESHOLDS = {
 }
 
 const MASTER_LEVEL = {
-  piano: 0.55,
-  banjo: 0.45,
-  harmonica: 0.35,
-  flute: 0.5,
-  whistle: 0.55,
-  drums: 0.6,
+  piano: 0.45,
+  banjo: 0.35,
+  harmonica: 0.3,
+  flute: 0.4,
+  whistle: 0.4,
+  drums: 0.25,
 }
 
 const FADE_IN = {
@@ -162,71 +162,95 @@ const FADE_IN = {
   drums: 2,
 }
 
+// 32-beat loop (~38s at 50 BPM). Chord progression i-VI-III-VII in C minor:
+// Cm (beats 0-7) → Ab (8-15) → Eb (16-23) → Bb (24-31) → back to Cm.
 const SCORES = {
   piano: {
-    loopBeats: 16,
+    loopBeats: 32,
     events: [
+      // Cm triad
       { beat: 0, note: 'C3', duration: 7.5 },
       { beat: 0, note: 'Eb3', duration: 7.5 },
       { beat: 0, note: 'G3', duration: 7.5 },
+      // Ab triad
       { beat: 8, note: 'Ab2', duration: 7.5 },
       { beat: 8, note: 'C3', duration: 7.5 },
       { beat: 8, note: 'Eb3', duration: 7.5 },
+      // Eb triad
+      { beat: 16, note: 'Eb3', duration: 7.5 },
+      { beat: 16, note: 'G3', duration: 7.5 },
+      { beat: 16, note: 'Bb3', duration: 7.5 },
+      // Bb triad
+      { beat: 24, note: 'Bb2', duration: 7.5 },
+      { beat: 24, note: 'D3', duration: 7.5 },
+      { beat: 24, note: 'F3', duration: 7.5 },
     ],
   },
   banjo: {
-    loopBeats: 16,
+    // Slow root-fifth-third-fifth pattern per chord (every 2 beats)
+    loopBeats: 32,
     events: [
-      { beat: 0, note: 'C3', duration: 0.5 },
-      { beat: 1, note: 'G3', duration: 0.5 },
-      { beat: 2, note: 'Bb3', duration: 0.5 },
-      { beat: 3, note: 'G3', duration: 0.5 },
-      { beat: 4, note: 'Eb4', duration: 0.5 },
-      { beat: 5, note: 'G3', duration: 0.5 },
-      { beat: 6, note: 'Bb3', duration: 0.5 },
-      { beat: 7, note: 'G3', duration: 0.5 },
-      { beat: 8, note: 'C3', duration: 0.5 },
-      { beat: 9, note: 'G3', duration: 0.5 },
-      { beat: 10, note: 'Eb4', duration: 0.5 },
-      { beat: 11, note: 'G3', duration: 0.5 },
-      { beat: 12, note: 'Bb3', duration: 0.5 },
-      { beat: 13, note: 'Eb4', duration: 0.5 },
-      { beat: 14, note: 'G4', duration: 0.5 },
-      { beat: 15, note: 'Eb4', duration: 0.5 },
+      { beat: 0, note: 'C3', duration: 0.6 },
+      { beat: 2, note: 'G3', duration: 0.6 },
+      { beat: 4, note: 'Eb3', duration: 0.6 },
+      { beat: 6, note: 'G3', duration: 0.6 },
+      { beat: 8, note: 'Ab2', duration: 0.6 },
+      { beat: 10, note: 'Eb3', duration: 0.6 },
+      { beat: 12, note: 'C3', duration: 0.6 },
+      { beat: 14, note: 'Eb3', duration: 0.6 },
+      { beat: 16, note: 'Eb3', duration: 0.6 },
+      { beat: 18, note: 'Bb3', duration: 0.6 },
+      { beat: 20, note: 'G3', duration: 0.6 },
+      { beat: 22, note: 'Bb3', duration: 0.6 },
+      { beat: 24, note: 'Bb2', duration: 0.6 },
+      { beat: 26, note: 'F3', duration: 0.6 },
+      { beat: 28, note: 'D3', duration: 0.6 },
+      { beat: 30, note: 'F3', duration: 0.6 },
     ],
   },
   harmonica: {
-    loopBeats: 16,
+    // One long sustained note per chord, hitting the 5th or 3rd
+    loopBeats: 32,
     events: [
-      { beat: 0, note: 'G4', duration: 7.5 },
-      { beat: 0, note: 'Bb4', duration: 7.5 },
-      { beat: 8, note: 'Ab4', duration: 7.5 },
-      { beat: 8, note: 'C5', duration: 7.5 },
+      { beat: 0, note: 'G4', duration: 7.5 },   // 5th of Cm
+      { beat: 8, note: 'C5', duration: 7.5 },   // 3rd of Ab
+      { beat: 16, note: 'Bb4', duration: 7.5 }, // 5th of Eb
+      { beat: 24, note: 'D5', duration: 7.5 },  // 3rd of Bb
     ],
   },
   flute: {
-    loopBeats: 16,
+    // Simple stepwise melody, one phrase per chord
+    loopBeats: 32,
     events: [
-      { beat: 0, note: 'Eb5', duration: 3 },
-      { beat: 4, note: 'G5', duration: 3 },
-      { beat: 8, note: 'F5', duration: 3 },
-      { beat: 12, note: 'Eb5', duration: 3.5 },
+      { beat: 0, note: 'G5', duration: 2 },
+      { beat: 3, note: 'Eb5', duration: 1.5 },
+      { beat: 5, note: 'F5', duration: 2.5 },
+      { beat: 8, note: 'Eb5', duration: 3 },
+      { beat: 12, note: 'C5', duration: 3.5 },
+      { beat: 16, note: 'Bb5', duration: 2 },
+      { beat: 19, note: 'G5', duration: 2 },
+      { beat: 22, note: 'F5', duration: 1.5 },
+      { beat: 24, note: 'F5', duration: 2 },
+      { beat: 27, note: 'D5', duration: 1.5 },
+      { beat: 29, note: 'Eb5', duration: 2.5 }, // resolves back to Cm
     ],
   },
   whistle: {
-    loopBeats: 16,
+    // Counter-melody above the flute, very sparse
+    loopBeats: 32,
     events: [
-      { beat: 6, note: 'Bb5', duration: 1.5 },
-      { beat: 14, note: 'G5', duration: 2 },
+      { beat: 11, note: 'C6', duration: 1.5 },
+      { beat: 26, note: 'Bb5', duration: 2 },
     ],
   },
   drums: {
-    loopBeats: 8,
+    // Atmospheric pulse — once per chord change, very soft
+    loopBeats: 32,
     events: [
-      { beat: 0, note: 'C2', duration: 0.2 },
-      { beat: 2, note: 'C2', duration: 0.2 },
-      { beat: 4, note: 'C2', duration: 0.2 },
-      { beat: 6, note: 'C2', duration: 0.2 },
+      { beat: 0, note: 'C3', duration: 0.3 },
+      { beat: 8, note: 'C3', duration: 0.3 },
+      { beat: 16, note: 'C3', duration: 0.3 },
+      { beat: 24, note: 'C3', duration: 0.3 },
     ],
   },
 }
@@ -255,7 +279,10 @@ function loadInstrument(name) {
   const c = getContext()
   if (!c) return Promise.reject(new Error('no audio context'))
   const master = ensureMaster(name)
-  instrumentCache[name] = Soundfont.instrument(c, INSTRUMENT_GM[name], { destination: master })
+  instrumentCache[name] = Soundfont.instrument(c, INSTRUMENT_GM[name], {
+    destination: master,
+    format: 'ogg',
+  })
   return instrumentCache[name]
 }
 

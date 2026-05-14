@@ -12,10 +12,12 @@ import {
   StarsCanvas,
   DownloadSection,
 } from '../../components'
+import MusicScrollDriver from '../../lib/MusicScrollDriver'
 
 export default function Home() {
   return (
     <div className="realtive z-0 bg-primary">
+      <MusicScrollDriver />
       <div className="bg-hero-pattern bg-cover bg-no-repeat bg-center">
         <Navbar />
         <Hero />

@@ -14,17 +14,21 @@ export default function FeaturedProject({ project, onOpen }) {
   const detailsMag = useMagneticHover(detailsCtaRef, { strength: 0.35, max: 8 })
 
   useEffect(() => {
+    if (project.id !== 'rubi') return
     const node = articleRef.current
     if (!node) return
+    // Extended top margin: once the article enters viewport, it stays
+    // "intersecting" as the user scrolls past it — bells keep playing all the
+    // way to the bottom of the page, fade out only when scrolling back above.
     const io = new IntersectionObserver(([entry]) => {
       setLayerActive('bells', entry.isIntersecting)
-    }, { threshold: 0.25 })
+    }, { rootMargin: '99999px 0px 0px 0px', threshold: 0 })
     io.observe(node)
     return () => {
       io.disconnect()
       setLayerActive('bells', false)
     }
-  }, [])
+  }, [project.id])
 
   return (
     <motion.article
@@ -69,7 +73,7 @@ export default function FeaturedProject({ project, onOpen }) {
                 style={{ x: liveMag.x, y: liveMag.y }}
                 className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-gradient-to-br from-pink-500 to-purple-600 text-white text-xs font-bold tracking-wider shadow-lg shadow-pink-500/40 transition-transform"
               >
-                Voir sur l'{links.live.label} ↗
+                {links.live.ctaLabel ?? `Voir sur l'${links.live.label} ↗`}
               </motion.a>
             )}
             <motion.button

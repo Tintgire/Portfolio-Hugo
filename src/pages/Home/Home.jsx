@@ -13,11 +13,13 @@ import {
   DownloadSection,
 } from '../../components'
 import MusicScrollDriver from '../../lib/MusicScrollDriver'
+import SoundPrompt from '../../components/SoundPrompt'
 
 export default function Home() {
   return (
     <div className="realtive z-0 bg-primary">
       <MusicScrollDriver />
+      <SoundPrompt />
       <div className="bg-hero-pattern bg-cover bg-no-repeat bg-center">
         <Navbar />
         <Hero />

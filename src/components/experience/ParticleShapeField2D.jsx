@@ -108,13 +108,13 @@ export default function ParticleShapeField2D({ count = 1400 }) {
     // 1fr_140px_1fr grid). The cursor activates the shape from anywhere on
     // the canvas, but the {} center is clamped inside this box so it never
     // drifts onto/over the card.
-    // Box centered horizontally over the right empty column. The card sits in
-    // the left 1fr of a 1fr_140px_1fr grid → right column center ≈ 70% of the
-    // viewport width. Vertically tightened to a centered band of the card
-    // height so the shape stays compact and well-framed.
+    // Box centered on the middle of the right half of the canvas (=75% of the
+    // viewport width) with a tight 16% horizontal span. Vertically centered
+    // on the card height (canvas height === card height via items-stretch in
+    // the parent grid) with a tight 30% band.
     const getBox = () => ({
-      xMin: w * 0.62,
-      xMax: w * 0.78,
+      xMin: w * 0.67,
+      xMax: w * 0.83,
       yMin: h * 0.35,
       yMax: h * 0.65,
     })

@@ -7,6 +7,7 @@ import { playTick } from '../lib/audio/uiSounds'
 
 import { styles } from '../styles'
 import TimelineParticles from './experience/TimelineParticles'
+import ParticleShapeField from './experience/ParticleShapeField'
 
 const Section = ({ label, children }) => (
   <div className="mt-4">
@@ -180,13 +181,21 @@ function TimelineRow({ experience, index }) {
             <TimelineNode experience={experience} />
           </div>
           <div className="hidden lg:flex lg:col-start-3 items-center justify-center min-h-[280px]">
-            <TimelineParticles pattern={index} height={280} />
+            {index === 0 ? (
+              <ParticleShapeField height={280} />
+            ) : (
+              <TimelineParticles pattern={index} height={280} />
+            )}
           </div>
         </>
       ) : (
         <>
           <div className="hidden lg:flex lg:col-start-1 items-center justify-center min-h-[280px]">
-            <TimelineParticles pattern={index} height={280} />
+            {index === 0 ? (
+              <ParticleShapeField height={280} />
+            ) : (
+              <TimelineParticles pattern={index} height={280} />
+            )}
           </div>
           <div className="hidden lg:block lg:col-start-2">
             <TimelineNode experience={experience} />

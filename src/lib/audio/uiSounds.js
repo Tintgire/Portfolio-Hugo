@@ -327,6 +327,24 @@ function buildScheduled(c, master, score) {
 
 let lastProgress = 0
 let musicActive = false
+const anchorLayers = { bells: false }
+let interactionListenerArmed = false
+
+// AudioContext starts in 'suspended' state on page load (autoplay policy) and
+// only resumes after a user gesture. Arm a one-shot listener that resumes the
+// context on the first click/keypress/scroll so the drone can actually be heard
+// when sound is already enabled at load time.
+function armResumeOnInteraction() {
+  if (interactionListenerArmed || typeof window === 'undefined') return
+  interactionListenerArmed = true
+  const events = ['click', 'keydown', 'touchstart', 'pointerdown', 'scroll']
+  const handler = () => {
+    const c = getContext()
+    if (c && c.state === 'suspended') c.resume().catch(() => {})
+    events.forEach((e) => window.removeEventListener(e, handler))
+  }
+  events.forEach((e) => window.addEventListener(e, handler, { passive: true }))
+}
 
 export function setMusicProgress(progress) {
   lastProgress = Math.min(1, Math.max(0, progress))
@@ -340,7 +358,23 @@ export function setMusicActive(active) {
     Object.keys(layers).forEach((name) => stopLayer(name))
     return
   }
+  armResumeOnInteraction()
   apply()
+}
+
+export function setLayerActive(name, active) {
+  if (!(name in anchorLayers)) return
+  anchorLayers[name] = active
+  if (!musicActive || !isSoundEnabled()) return
+  applyAnchorLayer(name)
+}
+
+function applyAnchorLayer(name) {
+  if (anchorLayers[name]) {
+    if (!layers[name]) startLayer(name)
+  } else if (layers[name]) {
+    stopLayer(name)
+  }
 }
 
 function apply() {
@@ -356,7 +390,6 @@ function apply() {
   // Breath at 50%
   if (lastProgress >= 0.5) { if (!layers.breath) startLayer('breath') }
   else if (layers.breath) stopLayer('breath')
-  // Bells at 75%
-  if (lastProgress >= 0.75) { if (!layers.bells) startLayer('bells') }
-  else if (layers.bells) stopLayer('bells')
+  // Bells: anchor-controlled (FeaturedProject viewport), not scroll-based
+  applyAnchorLayer('bells')
 }

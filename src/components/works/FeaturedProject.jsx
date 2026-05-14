@@ -1,18 +1,33 @@
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { useMagneticHover } from '../../lib/hooks/useMagneticHover'
-import { playClick } from '../../lib/audio/uiSounds'
+import { playClick, setLayerActive } from '../../lib/audio/uiSounds'
 
 export default function FeaturedProject({ project, onOpen }) {
   const { name, description, tech, images, links, year } = project
 
+  const articleRef = useRef(null)
   const liveCtaRef = useRef(null)
   const detailsCtaRef = useRef(null)
   const liveMag = useMagneticHover(liveCtaRef, { strength: 0.35, max: 8 })
   const detailsMag = useMagneticHover(detailsCtaRef, { strength: 0.35, max: 8 })
 
+  useEffect(() => {
+    const node = articleRef.current
+    if (!node) return
+    const io = new IntersectionObserver(([entry]) => {
+      setLayerActive('bells', entry.isIntersecting)
+    }, { threshold: 0.25 })
+    io.observe(node)
+    return () => {
+      io.disconnect()
+      setLayerActive('bells', false)
+    }
+  }, [])
+
   return (
     <motion.article
+      ref={articleRef}
       initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-100px' }}

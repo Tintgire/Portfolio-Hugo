@@ -151,15 +151,18 @@ export default function ParticleShapeField2D({ count = 1400 }) {
 
     // Track mouse via window — the canvas itself is pointer-events: none so it
     // doesn't block clicks on cards above it. Hover ON anywhere on the canvas.
+    // NOTE: do not also listen to `mouseout` — it bubbles up from every text
+    // node and element transition, which would constantly reset hoverTarget
+    // to 0 between mousemove ticks. The result was hover converging to ~0.5
+    // (a half-formed {} shape). onMove alone fully tracks enter/leave because
+    // it re-evaluates the bounds check each move.
     const onMove = (e) => {
       const r = canvas.getBoundingClientRect()
       mouseX = e.clientX - r.left
       mouseY = e.clientY - r.top
       hoverTarget = (mouseX >= 0 && mouseX <= r.width && mouseY >= 0 && mouseY <= r.height) ? 1 : 0
     }
-    const onLeaveDoc = () => { hoverTarget = 0 }
     window.addEventListener('mousemove', onMove)
-    window.addEventListener('mouseout', onLeaveDoc)
 
     const io = new IntersectionObserver(([entry]) => {
       visible = entry.isIntersecting
@@ -225,7 +228,6 @@ export default function ParticleShapeField2D({ count = 1400 }) {
       io.disconnect()
       window.removeEventListener('resize', onResize)
       window.removeEventListener('mousemove', onMove)
-      window.removeEventListener('mouseout', onLeaveDoc)
       if (raf) cancelAnimationFrame(raf)
     }
   }, [count])

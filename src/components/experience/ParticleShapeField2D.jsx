@@ -6,51 +6,24 @@ const PALETTE = [
   [236, 72, 153],   // #ec4899
 ]
 
-// Draw a stylized curly brace using explicit canvas paths so the shape is
-// deterministic regardless of which monospace font the browser falls back
-// to. `opening = true` → "{", `opening = false` → "}".
-//
-// Geometry note: `{` opens to the RIGHT, so its CLOSED side (the outer
-// curls) sits on the LEFT, and its middle tooth pokes RIGHT (toward the
-// content being braced). `}` is mirrored. So:
-//   - `{`: dir = -1  → outer corners at (cx - w, …), pinch tooth at (cx + w*0.55, cy)
-//   - `}`: dir = +1  → outer corners at (cx + w, …), pinch tooth at (cx - w*0.55, cy)
-function drawBrace(ctx, cx, cy, halfH, opening) {
-  const w = halfH * 0.55          // horizontal span (curl width)
-  const dir = opening ? -1 : 1    // { extends LEFT, } extends RIGHT
-  const thickness = Math.max(6, halfH * 0.22)
-
-  ctx.strokeStyle = '#fff'
-  ctx.lineWidth = thickness
-  ctx.lineCap = 'round'
-  ctx.lineJoin = 'round'
-  ctx.beginPath()
-  // Outer top corner (LEFT for {, RIGHT for })
-  ctx.moveTo(cx + dir * w, cy - halfH)
-  // Top curl → inward to the vertical bar
-  ctx.quadraticCurveTo(cx, cy - halfH, cx, cy - halfH * 0.65)
-  // Straight down to just above the mid pinch
-  ctx.lineTo(cx, cy - halfH * 0.15)
-  // Pinch tooth: out (toward content) then back in
-  ctx.quadraticCurveTo(cx, cy, cx - dir * w * 0.55, cy)
-  ctx.quadraticCurveTo(cx, cy, cx, cy + halfH * 0.15)
-  // Straight down to just above the bottom curl
-  ctx.lineTo(cx, cy + halfH * 0.65)
-  // Bottom curl → out to the outer bottom corner
-  ctx.quadraticCurveTo(cx, cy + halfH, cx + dir * w, cy + halfH)
-  ctx.stroke()
-}
-
+// Sample the silhouette of "{ }" rendered via a real monospace font (the
+// codebase's font stack: JetBrains Mono → Menlo → Consolas → generic
+// monospace). Font ratio is held at 0.78 of canvas height — agressive enough
+// to give the braces presence, but conservative enough to keep both top and
+// bottom curls fully inside the canvas (an earlier 0.95 ratio was clipping
+// the bottom on the Consolas fallback).
 function sampleShapeOffsets(w, h) {
   const c = document.createElement('canvas')
   c.width = w
   c.height = h
   const ctx = c.getContext('2d')
-  // Half-height of the braces — 40% of canvas height each side of center
-  // (so total brace height = 80% of canvas, leaving 10% padding top/bottom)
-  const halfH = h * 0.4
-  drawBrace(ctx, w * 0.32, h / 2, halfH, true)   // {
-  drawBrace(ctx, w * 0.68, h / 2, halfH, false)  // }
+  ctx.fillStyle = '#fff'
+  const size = Math.floor(h * 0.78)
+  ctx.font = `900 ${size}px "JetBrains Mono", "Menlo", "Consolas", monospace`
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.fillText('{', w * 0.36, h / 2)
+  ctx.fillText('}', w * 0.64, h / 2)
 
   const data = ctx.getImageData(0, 0, w, h).data
   const offsets = []

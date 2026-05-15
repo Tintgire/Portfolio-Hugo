@@ -90,7 +90,14 @@ const Hero = () => {
           </p>
         </div>
       </div>
-      <motion.div className="absolute inset-0" style={{ opacity: canvasOpacity }}>
+      {/* Canvas. On mobile (<sm), restrict to the bottom 55% of the viewport
+          so the 3D scene sits BELOW the title text instead of swallowing it.
+          On sm+ the canvas reclaims the full section and the text overlays it
+          like the original design. */}
+      <motion.div
+        className="absolute inset-x-0 bottom-0 top-[45%] sm:top-0"
+        style={{ opacity: canvasOpacity }}
+      >
         <ComputersCanvas />
       </motion.div>
       <div className="absolute xs:bottom-10 bottom-32 w-full flex justify-center items-center">

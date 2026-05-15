@@ -89,7 +89,10 @@ const ICONS = {
 
 // Cinematic service card — asymmetric layout, hover lifts card + tilts icon +
 // slides arrow. Even-indexed cards (0, 2, 4) sit normally; odd-indexed (1, 3)
-// translate down on lg screens to break the grid rhythm.
+// have a top margin on lg screens to break the grid rhythm. We use mt-4 (NOT
+// translate-y-4) because framer-motion writes inline `transform` for the
+// fadeIn entrance + whileHover lift — Tailwind's translate utilities would be
+// overridden by those inline styles, killing the asymmetric offset.
 const ServiceCard = ({ index, title, icon, tagline }) => {
   const IconComponent = typeof icon === 'string' ? ICONS[icon] : icon
   const isOffset = index % 2 === 1
@@ -103,10 +106,10 @@ const ServiceCard = ({ index, title, icon, tagline }) => {
       variants={fadeIn('up', 'spring', 0.15 * index, 0.75)}
       whileHover={{ y: -8 }}
       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-      className={`group relative overflow-hidden rounded-2xl border border-white/10 hover:border-pink-500/50 bg-gradient-to-br ${bgClass} p-6 transition-colors ${isOffset ? 'lg:translate-y-4' : ''}`}
+      className={`group relative overflow-hidden rounded-2xl border border-white/10 hover:border-pink-500/50 bg-gradient-to-br ${bgClass} p-6 transition-colors duration-300 ${isOffset ? 'lg:mt-4' : ''}`}
     >
       {/* Icon tilts when the parent card is hovered (group-hover) */}
-      <div className="mb-4 inline-block transition-transform duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:-rotate-[6deg] group-hover:scale-110">
+      <div className="mb-4 inline-block transition-transform duration-[400ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:-rotate-[6deg] group-hover:scale-110">
         {IconComponent ? (
           <IconComponent />
         ) : (
@@ -123,7 +126,7 @@ const ServiceCard = ({ index, title, icon, tagline }) => {
       )}
       <span
         aria-hidden
-        className="text-purple-300 text-sm opacity-60 group-hover:opacity-100 group-hover:translate-x-1 inline-block transition-all"
+        className="text-purple-300 text-sm opacity-60 group-hover:opacity-100 group-hover:translate-x-1 inline-block transition-all duration-300"
       >
         →
       </span>

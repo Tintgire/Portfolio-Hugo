@@ -145,13 +145,17 @@ function ExperienceCard({ experience }) {
 // Vertical rail with a base track + gradient fill that grows with scroll
 // progress through the timeline. A glowing head sits at the bottom of the
 // fill — the "you are here" marker that drags down as the user scrolls.
+//
+// On mobile the rail moves from the dead-center column to a fixed left
+// gutter (left-3 = 12px) so it runs alongside the stacked cards instead
+// of slicing through them.
 function RailFill({ scrollYProgress }) {
   const height = useTransform(scrollYProgress, [0, 1], ['0%', '100%'])
 
   return (
     <div
       aria-hidden="true"
-      className="hidden lg:block absolute left-1/2 top-0 bottom-0 -translate-x-1/2 pointer-events-none z-[1]"
+      className="absolute top-0 bottom-0 left-3 lg:left-1/2 -translate-x-1/2 pointer-events-none z-[1]"
       style={{ width: '2px' }}
     >
       {/* Base track — very faint so it never competes with the particles */}
@@ -171,6 +175,57 @@ function RailFill({ scrollYProgress }) {
         }}
       />
     </div>
+  )
+}
+
+// Small mobile-only marker that sits on the rail next to each card. Lights
+// up as the rail head crosses its vertical center, mirroring the desktop
+// TimelineNode behavior but without the big icon (it stays understated so
+// the card title remains the focal point on narrow screens).
+function MobileTimelineDot({ experience, scrollYProgress, timelineRef }) {
+  const wrapperRef = useRef(null)
+  const [isActive, setIsActive] = useState(false)
+
+  useEffect(() => {
+    if (!wrapperRef.current || !timelineRef?.current || !scrollYProgress) return
+
+    let nodeRelY = 0
+    const compute = () => {
+      const containerRect = timelineRef.current.getBoundingClientRect()
+      const nodeRect = wrapperRef.current.getBoundingClientRect()
+      if (containerRect.height === 0) return
+      const nodeCenter = nodeRect.top + nodeRect.height / 2 - containerRect.top
+      nodeRelY = nodeCenter / containerRect.height
+    }
+    compute()
+
+    const unsubscribe = scrollYProgress.on('change', (p) => {
+      setIsActive(p >= nodeRelY)
+    })
+    setIsActive(scrollYProgress.get() >= nodeRelY)
+
+    const onResize = () => compute()
+    window.addEventListener('resize', onResize)
+    return () => {
+      unsubscribe()
+      window.removeEventListener('resize', onResize)
+    }
+  }, [scrollYProgress, timelineRef])
+
+  return (
+    <motion.div
+      ref={wrapperRef}
+      aria-hidden="true"
+      animate={{ scale: isActive ? 1.2 : 1 }}
+      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      className="lg:hidden absolute left-3 top-8 -translate-x-1/2 w-3 h-3 rounded-full z-10 transition-[box-shadow] duration-500"
+      style={{
+        background: experience.iconBg ?? '#915EFF',
+        boxShadow: isActive
+          ? '0 0 0 3px #050211, 0 0 0 5px rgba(236, 72, 153, 0.45), 0 0 14px rgba(236, 72, 153, 0.55)'
+          : '0 0 0 3px #050211',
+      }}
+    />
   )
 }
 
@@ -273,9 +328,17 @@ function TimelineRow({ experience, index, scrollYProgress, timelineRef }) {
           <ParticleShapeField2D shape={shape} side={particlesSide} />
         </div>
       )}
-      <div className={`relative z-10 ${isLeft ? 'lg:col-start-1' : 'lg:col-start-3'}`}>
+      {/* pl-8 on mobile leaves room for the rail (at left-3) + dot (centered
+          on left-3) + breathing space before the card edge. lg+ resets the
+          gutter since the rail moves back to the column-grid center. */}
+      <div className={`relative z-10 pl-8 lg:pl-0 ${isLeft ? 'lg:col-start-1' : 'lg:col-start-3'}`}>
         <ExperienceCard experience={experience} />
       </div>
+      <MobileTimelineDot
+        experience={experience}
+        scrollYProgress={scrollYProgress}
+        timelineRef={timelineRef}
+      />
       <div className="hidden lg:block lg:col-start-2 lg:row-start-1 relative z-10">
         <TimelineNode
           experience={experience}

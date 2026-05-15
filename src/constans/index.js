@@ -332,11 +332,11 @@ const testimonials = [
     image: `/testimonials/raphael.png`,
   },
   {
-    testimonial: `Le Site internet se démarque véritablement en raison de sa magnificence, mais aussi par sa productivité et sa rigueur exceptionnelles, ce qui en fait une véritable référence.`,
-    name: `Manon Corret`,
-    designation: `CEO`,
-    company: `Licorne`,
-    image: `https://randomuser.me/api/portraits/women/6.jpg`,
+    testimonial: `Hugo m'a livré mon site en quelques jours seulement, et la qualité est largement au-dessus de ce que je voyais ailleurs dans mon secteur. Honnêtement j'étais choquée autant de la vitesse que du rendu.`,
+    name: `Lou Boidin`,
+    designation: `Maquilleuse indépendante`,
+    company: ``,
+    image: `/testimonials/lou.png`,
   },
 ]
 

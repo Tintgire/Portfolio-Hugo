@@ -10,7 +10,11 @@ const SectionWrapper = (Component, idName) => function HOC() {
             variants={staggerContainer()}
             initial="hidden"
             whileInView="show"
-            viewport={{ once: true, amount: 0.25 }}
+            // amount: 'some' = fires the moment ANY part of the section enters
+            // the viewport. Was 0.25 (25% visible), which made the entrance
+            // of tall sections (notably Works with featured + grid) feel
+            // delayed — the title would sit static while the user scrolled.
+            viewport={{ once: true, amount: 'some' }}
             className={`${styles.padding} max-w-7xl mx-auto relative z-0`}
         >
             <span className="hash-span" id={idName}>

@@ -13,8 +13,7 @@ import { playSubmit, playClick } from '../lib/audio/uiSounds'
 const SOCIAL = {
   email: 'boidinhugo14@gmail.com',
   github: 'https://github.com/Tintgire',
-  // TODO: confirm with Hugo — slug guessed from his name
-  linkedin: 'https://www.linkedin.com/in/hugo-boidin/',
+  linkedin: 'https://www.linkedin.com/in/hugoboidin/',
 }
 
 const SUBJECT_CHIPS = [
@@ -82,20 +81,40 @@ const IconCheck = (p) => (
 const Contact = () => {
   const formRef = useRef()
   const inputRef = useRef()
+  const isFirstRender = useRef(true)
   const [step, setStep] = useState(0)
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' })
   const [direction, setDirection] = useState(1) // 1 = forward (slides in from right), -1 = back
   const [error, setError] = useState(null)
   const [status, setStatus] = useState('idle') // idle | sending | success | error
+  const [emailCopied, setEmailCopied] = useState(false)
 
   const currentStep = STEPS[step]
   const isLastStep = step === STEPS.length - 1
 
-  // Auto-focus the input every time the step changes
+  // Auto-focus the input on step change. Skip the very first render so the
+  // page doesn't auto-scroll to the contact form on initial page load (which
+  // is what happens when you focus an off-screen element). `preventScroll`
+  // is a belt-and-braces guard for subsequent step changes.
   useEffect(() => {
-    const t = setTimeout(() => inputRef.current?.focus(), 350)
+    if (isFirstRender.current) {
+      isFirstRender.current = false
+      return
+    }
+    const t = setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 350)
     return () => clearTimeout(t)
   }, [step])
+
+  const copyEmail = async () => {
+    try {
+      await navigator.clipboard.writeText(SOCIAL.email)
+      playClick()
+      setEmailCopied(true)
+      setTimeout(() => setEmailCopied(false), 2000)
+    } catch (err) {
+      console.error('Clipboard copy failed:', err)
+    }
+  }
 
   const setField = (field, value) => {
     setForm((f) => ({ ...f, [field]: value }))
@@ -209,7 +228,12 @@ const Contact = () => {
                   initial={{ opacity: 0, x: direction * 40 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-                  className="flex-1 flex flex-col"
+                  // min-h locks the step content area to a stable size so the
+                  // form column (and the Earth canvas mirroring its height
+                  // with xl:h-auto) doesn't grow when step 3 introduces the
+                  // chips + textarea. Measured: step 3 natural height ~292px,
+                  // we round up to 320 for a comfortable buffer.
+                  className="flex-1 flex flex-col min-h-[320px]"
                 >
                   <h4 className="text-white text-2xl sm:text-3xl font-bold leading-tight mb-2">
                     {currentStep.title(form)}
@@ -339,7 +363,7 @@ const Contact = () => {
       </div>
 
       {/* BOTTOM — direct contacts strip */}
-      <ContactsStrip />
+      <ContactsStrip onCopyEmail={copyEmail} emailCopied={emailCopied} />
     </div>
   )
 }
@@ -362,8 +386,9 @@ const SuccessState = ({ name }) => (
 )
 
 // Direct contacts strip displayed below the form + Earth. Horizontal on lg,
-// stacks on smaller viewports.
-const ContactsStrip = () => (
+// stacks on smaller viewports. Email click copies to clipboard rather than
+// firing a mailto: — more universal (no email client required).
+const ContactsStrip = ({ onCopyEmail, emailCopied }) => (
   <motion.div
     variants={slideIn('up', 'tween', 0.4, 0.8)}
     className="bg-gradient-to-br from-[#160a30] to-[#0a0418] border border-white/10 rounded-2xl px-6 py-4 flex flex-col lg:flex-row items-start lg:items-center gap-4 lg:gap-6"
@@ -372,13 +397,23 @@ const ContactsStrip = () => (
       Plus direct ?
     </span>
     <div className="flex-1 flex flex-wrap items-center gap-x-6 gap-y-2">
-      <a
-        href={`mailto:${SOCIAL.email}`}
-        className="inline-flex items-center gap-2 text-sm text-white/85 hover:text-white transition-colors group"
+      <button
+        type="button"
+        onClick={onCopyEmail}
+        title="Cliquer pour copier l'email"
+        className="inline-flex items-center gap-2 text-sm text-white/85 hover:text-white transition-colors group cursor-pointer"
       >
         <IconMail width="16" height="16" className="text-pink-400 group-hover:text-pink-300" />
-        {SOCIAL.email}
-      </a>
+        <span className="relative">
+          {emailCopied ? (
+            <span className="text-emerald-300 inline-flex items-center gap-1.5">
+              <IconCheck width="14" height="14" /> Copié !
+            </span>
+          ) : (
+            SOCIAL.email
+          )}
+        </span>
+      </button>
       <a
         href={SOCIAL.linkedin}
         target="_blank"

@@ -33,7 +33,7 @@ const ProjectCard = ({
           scale: 1,
           speed: 450,
         }}
-        className="bg-tertiary p-5 rounded-2xl sm:w-[360px] w-full h-full cursor-pointer"
+        className="bg-tertiary p-5 rounded-2xl w-full h-full cursor-pointer"
       >
         <div
           role="button"
@@ -145,7 +145,10 @@ const Works = () => {
         </div>
       )}
 
-      <div className="mt-12 flex flex-wrap gap-7">
+      {/* Grid (not flex-wrap) so cards in the same row are guaranteed equal
+          height via grid's intrinsic row sizing — h-full chain inside the
+          ProjectCard then propagates that height to the bg-tertiary container. */}
+      <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7">
         {others.map((project, index) => (
           <ProjectCard
             key={project.id ?? `project-${index}`}

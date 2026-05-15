@@ -318,11 +318,11 @@ const experiences = [
 
 const testimonials = [
   {
-    testimonial: `Le Site internet est véritablement excellent, non seulement il est magnifique, mais il se distingue également par sa productivité et sa rigueur. Merci pour les moments passer ensemble.`,
-    name: `Valérie Malen`,
-    designation: `Directeur`,
-    company: `Del arte`,
-    image: `https://randomuser.me/api/portraits/women/4.jpg`,
+    testimonial: `Hugo a une vraie sensibilité aux enjeux d'architecture et de sécurité, il pose les bonnes questions dès la conception, pas en rattrapage. C'est rare chez un dev produit qui ship aussi vite que lui.`,
+    name: `Jessy SIVADIER`,
+    designation: `IT Architect Cyber Security`,
+    company: `Chanel`,
+    image: `/testimonials/jessy.png`,
   },
   {
     testimonial: `Le Site internet est véritablement excellent, non seulement en raison de sa magnificence, mais également grâce à sa productivité et à sa rigueur, qui le distinguent.`,

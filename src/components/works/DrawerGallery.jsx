@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { playTick } from '../../lib/audio/uiSounds'
 
 export default function DrawerGallery({ images, alt, imagePositions, orientation = 'landscape' }) {
   const [activeIndex, setActiveIndex] = useState(0)
+  const thumbStripRef = useRef(null)
 
   const total = images?.length ?? 0
   const single = total === 1
@@ -36,6 +37,18 @@ export default function DrawerGallery({ images, alt, imagePositions, orientation
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [single, total, prev, next])
+
+  // Keep the active thumbnail in view as the user navigates. Without this, on
+  // narrow screens (mobile) the strip overflows horizontally and the violet
+  // border on the active thumbnail ends up off-screen — the user can't tell
+  // which image they're on.
+  useEffect(() => {
+    const strip = thumbStripRef.current
+    if (!strip) return
+    const activeBtn = strip.children[activeIndex]
+    if (!activeBtn) return
+    activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
+  }, [activeIndex])
 
   if (!images || total === 0) return null
 
@@ -93,7 +106,7 @@ export default function DrawerGallery({ images, alt, imagePositions, orientation
       )}
 
       {!single && (
-        <div className={`mt-3 flex gap-2 overflow-x-auto pb-1 ${isPortrait ? 'justify-center' : ''}`}>
+        <div ref={thumbStripRef} className={`mt-3 flex gap-2 overflow-x-auto pb-1 ${isPortrait ? 'justify-center' : ''}`}>
           {images.map((src, i) => (
             <button
               key={src}

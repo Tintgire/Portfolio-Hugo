@@ -42,7 +42,7 @@ export default function FeaturedProject({ project, onOpen }) {
       <div className={`grid ${isBrowser ? 'lg:grid-cols-[1fr_560px]' : 'lg:grid-cols-[1fr_420px]'} gap-10 items-center`}>
         <div className="relative z-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-500/15 border border-pink-500/40 text-pink-300 text-[10px] tracking-[0.2em] uppercase font-bold mb-4">
-            <span className="w-1.5 h-1.5 rounded-full bg-pink-400 animate-pulse" />
+            <span className="w-1.5 h-1.5 rounded-full bg-pink-400" />
             Live on {links?.live?.label ?? 'production'}
             <span className="opacity-60 ml-1">· {year}</span>
           </div>
@@ -108,8 +108,20 @@ export default function FeaturedProject({ project, onOpen }) {
         )}
       </div>
 
-      <div aria-hidden className="absolute -top-20 -right-20 w-72 h-72 bg-purple-500/30 rounded-full blur-3xl pointer-events-none" />
-      <div aria-hidden className="absolute -bottom-20 -left-20 w-72 h-72 bg-pink-500/20 rounded-full blur-3xl pointer-events-none" />
+      {/* Soft glow halos. Promoted to their own compositor layer (translateZ(0)
+          + will-change) so iOS Safari doesn't re-rasterize the expensive
+          blur-3xl on every scroll frame — that re-rasterization was visible
+          as a flicker in the top-right corner of the card on iPhone. */}
+      <div
+        aria-hidden
+        className="absolute -top-20 -right-20 w-72 h-72 bg-purple-500/30 rounded-full blur-3xl pointer-events-none"
+        style={{ transform: 'translateZ(0)', willChange: 'transform' }}
+      />
+      <div
+        aria-hidden
+        className="absolute -bottom-20 -left-20 w-72 h-72 bg-pink-500/20 rounded-full blur-3xl pointer-events-none"
+        style={{ transform: 'translateZ(0)', willChange: 'transform' }}
+      />
     </motion.article>
   )
 }

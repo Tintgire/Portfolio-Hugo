@@ -1,5 +1,4 @@
 import React from 'react'
-import { Tilt } from 'react-tilt'
 import { motion } from 'framer-motion'
 
 import { styles } from '../styles'
@@ -7,13 +6,13 @@ import { services } from '../constans'
 import { fadeIn, textVariant } from '../utils/motion'
 import { SectionWrapper } from '../hoc'
 
-// Inline SVG icons — gradient violet → pink, line style at 1.6 stroke for
+// Inline SVG icons — gradient violet → pink, line style at 1.8 stroke for
 // crisp readability. Unique gradient id per icon to avoid SVG defs collisions.
-const Icon = ({ id, children }) => (
+const Icon = ({ id, size = 56, children }) => (
   <svg
     viewBox="0 0 64 64"
-    width="80"
-    height="80"
+    width={size}
+    height={size}
     fill="none"
     stroke={`url(#${id})`}
     strokeWidth="1.8"
@@ -65,8 +64,10 @@ export const IconAI = () => (
 // DevOps / Cloud — cloud with deploy arrow
 export const IconDevOps = () => (
   <Icon id="svc-grad-devops">
-    <path d="M16 38c-4 0-8-3-8-8 0-4 3-7 7-7 1-5 5-9 11-9 6 0 11 4 12 9h2c5 0 9 4 9 9s-4 9-9 9H16z" />
-    <path d="M32 32v14M26 38l6 6 6-6" />
+    {/* Cloud: bottom flat at y=44, three rounded bumps reaching y=16, sits cleanly inside viewBox */}
+    <path d="M18 44Q8 44 8 36Q8 28 16 26Q18 16 28 16Q40 16 42 26Q56 26 56 36Q56 44 46 44Z" />
+    {/* Download/deploy arrow centered in cloud */}
+    <path d="M32 24v14M26 32l6 6 6-6" />
   </Icon>
 )
 
@@ -86,33 +87,47 @@ const ICONS = {
   lead: IconLead,
 }
 
-const ServiceCard = ({ index, title, icon }) => {
+// Cinematic service card — asymmetric layout, hover lifts card + tilts icon +
+// slides arrow. Even-indexed cards (0, 2, 4) sit normally; odd-indexed (1, 3)
+// translate down on lg screens to break the grid rhythm.
+const ServiceCard = ({ index, title, icon, tagline }) => {
   const IconComponent = typeof icon === 'string' ? ICONS[icon] : icon
+  const isOffset = index % 2 === 1
+  // Alternate background gradient between two purple shades for visual rhythm
+  const bgClass = index % 2 === 0
+    ? 'from-[#1a0a35] to-[#0a0418]'
+    : 'from-[#160a30] to-[#050211]'
+
   return (
-    <Tilt className="xs:w-[250px] w-full">
-      <motion.div
-        variants={fadeIn('right', 'spring', 0.5 * index, 0.75)}
-        className="w-full green-pink-gradient p-[1px] rounded-[20px] shadow-card"
+    <motion.article
+      variants={fadeIn('up', 'spring', 0.15 * index, 0.75)}
+      whileHover={{ y: -8 }}
+      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      className={`group relative overflow-hidden rounded-2xl border border-white/10 hover:border-pink-500/50 bg-gradient-to-br ${bgClass} p-6 transition-colors ${isOffset ? 'lg:translate-y-4' : ''}`}
+    >
+      {/* Icon tilts when the parent card is hovered (group-hover) */}
+      <div className="mb-4 inline-block transition-transform duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:-rotate-[6deg] group-hover:scale-110">
+        {IconComponent ? (
+          <IconComponent />
+        ) : (
+          <img src={icon} alt="service" className="w-14 h-14 object-contain" />
+        )}
+      </div>
+      <h3 className="text-white text-xl font-bold leading-tight mb-2">
+        {title}
+      </h3>
+      {tagline && (
+        <p className="text-secondary text-sm leading-relaxed mb-3">
+          {tagline}
+        </p>
+      )}
+      <span
+        aria-hidden
+        className="text-purple-300 text-sm opacity-60 group-hover:opacity-100 group-hover:translate-x-1 inline-block transition-all"
       >
-        <div
-          options={{
-            max: 45,
-            scale: 1,
-            speed: 450,
-          }}
-          className="bg-tertiary rounded-[20px] py-5 px-6 min-h-[280px] flex justify-evenly items-center flex-col"
-        >
-          {IconComponent ? (
-            <IconComponent />
-          ) : (
-            <img src={icon} alt="service" className="w-24 h-24 object-contain" />
-          )}
-          <h3 className="text-white text-[20px] font-bold text-center leading-tight">
-            {title}
-          </h3>
-        </div>
-      </motion.div>
-    </Tilt>
+        →
+      </span>
+    </motion.article>
   )
 }
 
@@ -133,7 +148,7 @@ const About = () => {
         <strong className="text-white/85">Valofenua</strong> (estimation immobilière en Polynésie française) — je ship des produits de bout en bout&nbsp;: architecture backend Python/FastAPI, front React 3D animé, agents IA, apps mobiles React Native. En parallèle, je livre régulièrement des sites sur-mesure en freelance pour artisans, créatifs et marques personnelles. Je crois aux outils qui font gagner du temps réel à de vrais utilisateurs — et aux interfaces qui se font remarquer.
       </motion.p>
 
-      <div className="mt-20 flex flex-wrap gap-10 justify-center lg:justify-start">
+      <div className="mt-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         {services.map((service, index) => (
           <ServiceCard key={service.title} index={index} {...service} />
         ))}

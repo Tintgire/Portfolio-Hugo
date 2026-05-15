@@ -48,22 +48,27 @@ const services = [
   {
     title: 'Product Engineer',
     icon: 'product',
+    tagline: "De l'archi back à l'UI : je conçois, ship, mesure. Bout en bout.",
   },
   {
     title: '3D & Creative Developer',
     icon: 'threed',
+    tagline: 'Three.js, R3F, shaders, Framer Motion. Des interfaces qui se font remarquer.',
   },
   {
     title: 'AI Integration',
     icon: 'ai',
+    tagline: "Agents, RAG, voice-to-data. L'IA comme outil, pas comme gadget.",
   },
   {
     title: 'DevOps / Cloud',
     icon: 'devops',
+    tagline: 'CI/CD, Vercel, Supabase, Docker. Du commit à la prod sans friction.',
   },
   {
     title: 'Co-fondateur / Tech Lead',
     icon: 'lead',
+    tagline: '2 startups. Décisions tech, recrutement, vision produit, exécution.',
   },
 ]
 

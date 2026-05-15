@@ -227,3 +227,30 @@ body {
     opacity: 0;
   }
 }
+
+/* Testimonials marquee: infinite slow horizontal scroll with seamless loop.
+ * The track contains the testimonials list duplicated; -50% translate completes
+ * one full cycle of the original list before snapping back to start. Pause on
+ * hover so users can read. Disabled for reduced-motion users. */
+@keyframes testimonial-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.testimonial-marquee {
+  animation: testimonial-marquee 40s linear infinite;
+}
+
+.testimonial-marquee-wrap:hover .testimonial-marquee {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .testimonial-marquee {
+    animation: none;
+  }
+}

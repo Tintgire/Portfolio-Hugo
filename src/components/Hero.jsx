@@ -90,17 +90,18 @@ const Hero = () => {
           </p>
         </div>
       </div>
-      {/* Canvas. On mobile (<sm), restrict to the bottom 55% of the viewport
-          so the 3D scene sits BELOW the title text instead of swallowing it.
-          On sm+ the canvas reclaims the full section and the text overlays it
-          like the original design. */}
+      {/* Canvas. On mobile (<sm), restrict to a middle band: top: 45% leaves
+          room for the title above, bottom: 90px leaves a strip below for the
+          scroll-down arrow so it doesn't overlap the desk. On sm+ the canvas
+          reclaims the full section and the text overlays it like the
+          original design. */}
       <motion.div
-        className="absolute inset-x-0 bottom-0 top-[45%] sm:top-0"
+        className="absolute inset-x-0 bottom-[90px] sm:bottom-0 top-[45%] sm:top-0"
         style={{ opacity: canvasOpacity }}
       >
         <ComputersCanvas />
       </motion.div>
-      <div className="absolute xs:bottom-10 bottom-32 w-full flex justify-center items-center">
+      <div className="absolute bottom-6 sm:bottom-10 w-full flex justify-center items-center">
         <a href="#about">
           <div className="w-[30px] h-[50px] rounded-3xl border-4 border-secondary flex justify-center items-start p-1">
             <motion.div

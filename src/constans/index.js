@@ -325,11 +325,11 @@ const testimonials = [
     image: `/testimonials/jessy.png`,
   },
   {
-    testimonial: `Le Site internet est véritablement excellent, non seulement en raison de sa magnificence, mais également grâce à sa productivité et à sa rigueur, qui le distinguent.`,
-    name: `Jean Laval`,
-    designation: `Responsable`,
-    company: `Chanel`,
-    image: `https://randomuser.me/api/portraits/men/5.jpg`,
+    testimonial: `Hugo a monté toute notre couche d'automatisation : agents Claude pour le contenu, workflows n8n pour l'orchestration. Il comprend vite, livre vite, et ça tourne en prod sans qu'on ait à y revenir.`,
+    name: `Raphaël Mallet`,
+    designation: `Fondateur`,
+    company: `Système Immo Accelerator`,
+    image: `/testimonials/raphael.png`,
   },
   {
     testimonial: `Le Site internet se démarque véritablement en raison de sa magnificence, mais aussi par sa productivité et sa rigueur exceptionnelles, ce qui en fait une véritable référence.`,

@@ -87,50 +87,54 @@ const ICONS = {
   lead: IconLead,
 }
 
-// Cinematic service card — asymmetric layout, hover lifts card + tilts icon +
-// slides arrow. Even-indexed cards (0, 2, 4) sit normally; odd-indexed (1, 3)
-// have a top margin on lg screens to break the grid rhythm. We use mt-4 (NOT
-// translate-y-4) because framer-motion writes inline `transform` for the
-// fadeIn entrance + whileHover lift — Tailwind's translate utilities would be
-// overridden by those inline styles, killing the asymmetric offset.
+// Cinematic service card — uniform grid (toutes les cards font la même
+// taille), hover lifts the card by 8px and returns smoothly on mouse-leave.
+//
+// Architecture: `motion.div` outer = entrance animation (writes inline
+// transform via framer-motion). `<article>` inner = pure CSS hover (writes
+// its OWN transform on a different element). Transforms are per-element so
+// no conflict, and the hover transition is independent from the entrance
+// delay — un-hover returns immediately instead of waiting for the staggered
+// entrance delay to replay.
 const ServiceCard = ({ index, title, icon, tagline }) => {
   const IconComponent = typeof icon === 'string' ? ICONS[icon] : icon
-  const isOffset = index % 2 === 1
   // Alternate background gradient between two purple shades for visual rhythm
   const bgClass = index % 2 === 0
     ? 'from-[#1a0a35] to-[#0a0418]'
     : 'from-[#160a30] to-[#050211]'
 
   return (
-    <motion.article
+    <motion.div
       variants={fadeIn('up', 'spring', 0.15 * index, 0.75)}
-      whileHover={{ y: -8 }}
-      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-      className={`group relative overflow-hidden rounded-2xl border border-white/10 hover:border-pink-500/50 bg-gradient-to-br ${bgClass} p-6 transition-colors duration-300 ${isOffset ? 'lg:mt-4' : ''}`}
+      className="h-full"
     >
-      {/* Icon tilts when the parent card is hovered (group-hover) */}
-      <div className="mb-4 inline-block transition-transform duration-[400ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:-rotate-[6deg] group-hover:scale-110">
-        {IconComponent ? (
-          <IconComponent />
-        ) : (
-          <img src={icon} alt="service" className="w-14 h-14 object-contain" />
-        )}
-      </div>
-      <h3 className="text-white text-xl font-bold leading-tight mb-2">
-        {title}
-      </h3>
-      {tagline && (
-        <p className="text-secondary text-sm leading-relaxed mb-3">
-          {tagline}
-        </p>
-      )}
-      <span
-        aria-hidden
-        className="text-purple-300 text-sm opacity-60 group-hover:opacity-100 group-hover:translate-x-1 inline-block transition-all duration-300"
+      <article
+        className={`group relative h-full min-h-[260px] flex flex-col overflow-hidden rounded-2xl border border-white/10 hover:border-pink-500/50 bg-gradient-to-br ${bgClass} p-6 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-2`}
       >
-        →
-      </span>
-    </motion.article>
+        {/* Icon tilts when the parent card is hovered (group-hover) */}
+        <div className="mb-4 inline-block transition-transform duration-[400ms] ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:-rotate-[6deg] group-hover:scale-110">
+          {IconComponent ? (
+            <IconComponent />
+          ) : (
+            <img src={icon} alt="service" className="w-14 h-14 object-contain" />
+          )}
+        </div>
+        <h3 className="text-white text-xl font-bold leading-tight mb-2">
+          {title}
+        </h3>
+        {tagline && (
+          <p className="text-secondary text-sm leading-relaxed mb-3">
+            {tagline}
+          </p>
+        )}
+        <span
+          aria-hidden
+          className="mt-auto self-start text-purple-300 text-sm opacity-60 group-hover:opacity-100 group-hover:translate-x-1 inline-block transition-all duration-300"
+        >
+          →
+        </span>
+      </article>
+    </motion.div>
   )
 }
 

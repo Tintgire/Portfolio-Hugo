@@ -157,6 +157,19 @@ const Contact = () => {
   }
 
   const submit = () => {
+    // EmailJS credentials live in env vars so we never commit them. Local dev
+    // reads from .env.local; prod reads from Vercel's environment settings.
+    const SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID
+    const TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID
+    const PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY
+
+    if (!SERVICE_ID || !TEMPLATE_ID || !PUBLIC_KEY) {
+      console.error('EmailJS env vars missing — set VITE_EMAILJS_SERVICE_ID, VITE_EMAILJS_TEMPLATE_ID, VITE_EMAILJS_PUBLIC_KEY')
+      setStatus('error')
+      setTimeout(() => setStatus('idle'), 5000)
+      return
+    }
+
     setStatus('sending')
 
     const messageWithSubject = form.subject
@@ -164,16 +177,16 @@ const Contact = () => {
       : form.message
 
     emailjs.send(
-      'service_orlgp6g',
-      'template_f75y83m',
+      SERVICE_ID,
+      TEMPLATE_ID,
       {
         from_name: form.name,
-        to_name: '',
+        to_name: 'Hugo',
         from_email: form.email,
-        to_email: '',
+        to_email: 'boidinhugo14@gmail.com',
         message: messageWithSubject,
       },
-      'uivf8EyNaRYPeWLa_',
+      PUBLIC_KEY,
     ).then(
       () => {
         playSubmit()

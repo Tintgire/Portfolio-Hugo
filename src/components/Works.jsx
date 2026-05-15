@@ -20,14 +20,20 @@ const ProjectCard = ({
   const { id, name, description, tags, image, source_code_link } = project
 
   return (
-    <motion.div variants={fadeIn('up', 'spring', index * 0.5, 0.75)}>
+    // h-full chain: motion.div → Tilt → inner div all stretch to the tallest
+    // card in the row (flex parent has align-items: stretch by default). Tags
+    // get mt-auto so they pin to the bottom regardless of description length.
+    <motion.div
+      variants={fadeIn('up', 'spring', index * 0.5, 0.75)}
+      className="h-full"
+    >
       <Tilt
         options={{
           max: 45,
           scale: 1,
           speed: 450,
         }}
-        className="bg-tertiary p-5 rounded-2xl sm:w-[360px] w-full cursor-pointer"
+        className="bg-tertiary p-5 rounded-2xl sm:w-[360px] w-full h-full cursor-pointer"
       >
         <div
           role="button"
@@ -44,7 +50,7 @@ const ProjectCard = ({
               onOpen?.(id)
             }
           }}
-          className="rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-[#915EFF] focus-visible:ring-offset-2 focus-visible:ring-offset-tertiary"
+          className="h-full flex flex-col rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-[#915EFF] focus-visible:ring-offset-2 focus-visible:ring-offset-tertiary"
         >
           <div className="relative w-full h-[230px]">
             <img
@@ -77,7 +83,8 @@ const ProjectCard = ({
             <p className="mt-2 text-secondary text-[14px]">{description}</p>
           </div>
 
-          <div className="mt-4 flex flex-wrap gap-2">
+          {/* mt-auto pushes tags to card bottom — uniform alignment across cards */}
+          <div className="mt-auto pt-4 flex flex-wrap gap-2">
             {tags.map((tag) => (
               <p key={tag.name} className={`text-[14px] ${tag.color}`}>
                 #{tag.name}

@@ -66,9 +66,9 @@ const services = [
     tagline: 'CI/CD, Vercel, Supabase, Docker. Du commit à la prod sans friction.',
   },
   {
-    title: 'Co-fondateur / Tech Lead',
+    title: 'Fondateur / Tech Lead',
     icon: 'lead',
-    tagline: '2 startups. Décisions tech, recrutement, vision produit, exécution.',
+    tagline: 'FreshStock créé, Valofenua cofondé. Décisions tech, vision produit, exécution.',
   },
 ]
 
@@ -142,8 +142,8 @@ const technologies = [
 
 const experiences = [
   {
-    type: 'Co-fondateur · Startup',
-    title: 'Co-fondateur & Développeur — FreshStock',
+    type: 'Fondateur · Startup',
+    title: 'Fondateur & Développeur — FreshStock',
     company_name: 'FreshStock',
     context: 'B2B inventaire restauration vocale + IA · iOS / Android / web',
     icon: freshstock,

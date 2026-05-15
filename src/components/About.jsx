@@ -150,8 +150,8 @@ const About = () => {
         variants={fadeIn('', '', 0.1, 1)}
         className="mt-4 text-secondary text-[17px] max-w-3xl leading-[30px]"
       >
-        Développeur full-stack & co-fondateur de deux startups —{' '}
-        <strong className="text-white/85">FreshStock</strong> (IA et inventaire vocal pour la restauration) et{' '}
+        Développeur full-stack — fondateur de{' '}
+        <strong className="text-white/85">FreshStock</strong> (IA et inventaire vocal pour la restauration) et co-fondateur de{' '}
         <strong className="text-white/85">Valofenua</strong> (estimation immobilière en Polynésie française) — je ship des produits de bout en bout&nbsp;: architecture backend Python/FastAPI, front React 3D animé, agents IA, apps mobiles React Native. En parallèle, je livre régulièrement des sites sur-mesure en freelance pour artisans, créatifs et marques personnelles. Je crois aux outils qui font gagner du temps réel à de vrais utilisateurs — et aux interfaces qui se font remarquer.
       </motion.p>
 

@@ -515,6 +515,43 @@ Stack : Next.js 16 App Router + React 19 + TypeScript strict + Tailwind v4. Anim
     },
   },
   {
+    id: 'mallet',
+    name: 'Olivier Mallet — Menuiserie',
+    type: 'web',
+    featured: true,
+    mockup: 'browser',
+    year: '2026',
+    description: `Site vitrine pour Olivier Mallet, artisan menuisier. React + Chakra UI, intégration Google Maps pour localiser l'atelier et formulaire de contact via Nodemailer.`,
+    longDescription: `Olivier Mallet est artisan menuisier. Le brief : un site vitrine clair, rassurant et professionnel, qui présente le savoir-faire, met en avant les réalisations et permet aux clients de prendre contact rapidement — sans friction.
+
+L'interface est construite avec React + Chakra UI pour un design accessible, responsive et rapide à itérer. La galerie met en scène les chantiers (menuiserie intérieure, agencement, escaliers) avec un soin particulier sur la mise en page et la photo. L'atelier est localisé en direct via l'API Google Maps embarquée dans la section contact.
+
+Le formulaire de contact est branché sur un backend Node.js + Nodemailer : les messages partent directement par mail vers Olivier, avec validation côté client et anti-spam. Déployé sur Vercel.`,
+    tags: [
+      { name: `React`, color: `text-cyan-400 text-gradient` },
+      { name: `Chakra UI`, color: `text-teal-400 text-gradient` },
+      { name: `Google Maps`, color: `text-green-400 text-gradient` },
+      { name: `Nodemailer`, color: `text-orange-400 text-gradient` },
+    ],
+    tech: ['React', 'Chakra UI', 'Google Maps API', 'Node.js', 'Nodemailer', 'Vercel'],
+    image: '/projects/mallet/screen-1.png',
+    images: [
+      '/projects/mallet/screen-1.png',
+      '/projects/mallet/screen-2.png',
+      '/projects/mallet/screen-3.png',
+      '/projects/mallet/screen-4.png',
+      '/projects/mallet/screen-5.png',
+      '/projects/mallet/screen-6.png',
+    ],
+    imagePositions: ['top', 'top', 'top', 'top', 'top', 'top'],
+    site: 'https://menuiserie-mallet.vercel.app',
+    source_code_link: 'https://github.com/Tintgire/Olivier',
+    links: {
+      live: { url: 'https://menuiserie-mallet.vercel.app', label: 'Site live', ctaLabel: 'Voir sur le site ↗' },
+      github: { url: 'https://github.com/Tintgire/Olivier' },
+    },
+  },
+  {
     id: 'kasa',
     name: `Kaza`,
     type: 'web',
